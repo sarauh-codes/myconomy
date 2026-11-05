@@ -20,6 +20,7 @@
         <nav aria-label="Main navigation">
           <ul class="nav-list">
             <li><a href="{{ url_for('main.index') }}"{% if request.endpoint == 'main.index' %} aria-current="page"{% endif %}>Home</a></li>
+            <li><a href="{{ url_for('dashboard.dashboard') }}"{% if request.endpoint == 'dashboard.dashboard' %} aria-current="page"{% endif %}>Dashboard</a></li>
             <li><a href="{{ url_for('data_status.data_status') }}"{% if request.endpoint == 'data_status.data_status' %} aria-current="page"{% endif %}>Data status</a></li>
             <li><a href="{{ url_for('main.health') }}"{% if request.endpoint == 'main.health' %} aria-current="page"{% endif %}>Service status</a></li>
           </ul>
@@ -60,5 +61,6 @@
   </footer>
 
   <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

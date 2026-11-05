@@ -42,6 +42,12 @@ flask --app run db upgrade
 Local data is stored in `instance/myconomy.db`. This folder is git-ignored
 because it can contain personal data.
 
+## Dashboard
+
+Open http://127.0.0.1:5000/dashboard after running a refresh. The page
+shows the latest value, 12-month and monthly changes, a chart, a data table,
+and the source. Its JSON data is at `/api/indicators/cpi_headline/series`.
+
 ## Refresh OpenDOSM data
 
 ```powershell

@@ -78,6 +78,25 @@ URL without the slash returns a 301 redirect).
 - Live refresh on 2026-11-05 stored 561 observations for `cpi_headline`.
 - Tests: 58 passing with no network access. One optional live test runs with `RUN_LIVE_TESTS=1`.
 
+## 3b. Milestone 3 build notes (Economic dashboard)
+
+- Page: `/dashboard?indicator=…&range=1y|5y|10y|all`. Invalid indicator or range
+  shows a message with HTTP 400. Nothing reaches the database with unvalidated input.
+- JSON: `/api/indicators/<code>/series?range=…` for the chart and for later features (widget, chatbot).
+- Changes: 12-month and month-on-month changes are calculated from stored values
+  (`app/services/dashboard_service.py`). They are only shown when both months exist,
+  and only for monthly series. Missing values are never estimated.
+- Ranges are counted in stored months, so a range always ends at the latest stored period, not today.
+- Chart library: Chart.js 4.5.1 from cdnjs. Released 2025-10-13, so it meets the
+  two-week rule. (4.6.1 was released 2026-10-22, only two weeks before this build.)
+  The page falls back to the data table if the library cannot load.
+- Chart colours come from the design tokens and redraw when the theme changes.
+  Animation is disabled for reduced-motion users.
+- The chart has a text alternative (table under "View data table") so no information relies on colour alone.
+- Verified in the browser at 1280px and 375px, dark and light: no horizontal scroll;
+  chart loads and redraws on theme change.
+- Tests: 85 passing (58 from Milestone 2, plus calculation, route, and series tests).
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it

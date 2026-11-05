@@ -47,6 +47,8 @@
 
   function applyTheme(value) {
     root.setAttribute("data-theme", value);
+    // Let components such as charts re-read colours from the stylesheet.
+    document.dispatchEvent(new Event("themechange"));
   }
 
   var toggle = document.querySelector("[data-theme-toggle]");

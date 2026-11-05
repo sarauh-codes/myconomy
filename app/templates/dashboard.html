@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Economic dashboard{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="dash-title">
+  <p class="eyebrow">Economic dashboard</p>
+  <h1 id="dash-title">{{ spec.name }}</h1>
+  <p class="lead">{{ spec.description }}</p>
+</section>
+
+{% for message in errors %}
+<div class="notice notice-error" role="alert">{{ message }}</div>
+{% endfor %}
+
+<form class="filters card" method="get" action="{{ url_for('dashboard.dashboard') }}" aria-label="Choose indicator and time range">
+  <div class="field">
+    <label for="indicator">Indicator</label>
+    <select id="indicator" name="indicator">
+      {% for item in indicators %}
+      <option value="{{ item.code }}"{% if item.code == spec.code %} selected{% endif %}>{{ item.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="range">Time range</label>
+    <select id="range" name="range">
+      {% for key, label in ranges %}
+      <option value="{{ key }}"{% if key == range_key %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field field-submit">
+    <button type="submit" class="btn btn-primary">Update</button>
+  </div>
+</form>
+
+<section class="status-line" aria-live="polite">
+  <p>
+    <span class="tag status-{{ snapshot.status }}">
+      {% if snapshot.status == 'fresh' %}Current{% elif snapshot.status == 'stale' %}Stale{% else %}Unavailable{% endif %}
+    </span>
+    {{ snapshot.status_message }}
+  </p>
+</section>
+
+<section class="cards" aria-label="Summary">
+  <article class="card stat-card">
+    <h2 class="stat-label">Latest value</h2>
+    <p class="stat-value data">{{ latest_value_text }}</p>
+    <p class="muted">Reference period {{ latest_period_text }}</p>
+  </article>
+  <article class="card stat-card">
+    <h2 class="stat-label">Change over 12 months</h2>
+    <p class="stat-value data">{{ yoy_text }}</p>
+    <p class="muted">{% if yoy_period_text %}Compared with {{ yoy_period_text }}{% else %}Needs the same month a year earlier{% endif %}</p>
+  </article>
+  <article class="card stat-card">
+    <h2 class="stat-label">Change from last month</h2>
+    <p class="stat-value data">{{ mom_text }}</p>
+    <p class="muted">{% if mom_period_text %}Compared with {{ mom_period_text }}{% else %}Needs the previous month{% endif %}</p>
+  </article>
+</section>
+
+<section class="card chart-card" aria-labelledby="chart-title">
+  <h2 id="chart-title">{{ spec.name }}, {{ range_label | lower }}</h2>
+  <div class="chart-wrap" data-chart data-endpoint="{{ series_url }}">
+    <canvas id="chart" role="img" aria-label="Line chart of {{ spec.name }} over the selected range. The same values are listed in the data table below."></canvas>
+    <p class="chart-state" data-chart-state>Loading chart…</p>
+  </div>
+  <details class="table-details">
+    <summary>View data table</summary>
+    {% if table_rows %}
+    <div class="table-scroll">
+      <table class="data-table">
+        <caption>{{ spec.name }}, newest first. Unit: {{ spec.unit }}.</caption>
+        <thead>
+          <tr><th scope="col">Reference period</th><th scope="col">Value</th></tr>
+        </thead>
+        <tbody>
+          {% for row in table_rows %}
+          <tr><td>{{ row.period }}</td><td class="data">{{ row.value }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="muted">No values are stored for this range yet.</p>
+    {% endif %}
+  </details>
+</section>
+
+<section class="card source-card" aria-labelledby="source-title">
+  <h2 id="source-title">Source and method</h2>
+  <dl class="spec-list">
+    <div class="spec-row"><dt>Source</dt><dd><a href="{{ spec.source_url }}">{{ spec.provider }} documentation</a></dd></div>
+    <div class="spec-row"><dt>Unit</dt><dd>{{ spec.unit }}</dd></div>
+    <div class="spec-row"><dt>Provider update frequency</dt><dd>{{ spec.frequency | lower }}</dd></div>
+    <div class="spec-row"><dt>Provider data as of</dt><dd>{{ snapshot.data_as_of or 'Not available' }}</dd></div>
+    <div class="spec-row"><dt>Retrieved by Myconomy (UTC)</dt><dd>{% if snapshot.retrieved_at %}{{ snapshot.retrieved_at.strftime('%Y-%m-%d %H:%M') }}{% else %}Not yet{% endif %}</dd></div>
+  </dl>
+  <p class="method">
+    12-month change = (latest value − value 12 months earlier) ÷ value 12 months earlier × 100.
+    Monthly change works the same way against the previous month. Changes are only shown when both months are available.
+    These figures describe the index itself, not an individual's costs.
+  </p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js" defer></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+{% endblock %}
