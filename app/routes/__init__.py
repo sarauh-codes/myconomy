@@ -4,6 +4,8 @@ from flask import Flask
 
 
 def register_blueprints(app: Flask) -> None:
+    from .data_status import data_status_bp
     from .main import main_bp
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(data_status_bp)

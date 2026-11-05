@@ -22,6 +22,14 @@ class BaseConfig:
     SESSION_COOKIE_SECURE = False
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 
+    # OpenDOSM provider settings. Seconds unless stated otherwise.
+    OPENDOSM_BASE_URL = os.environ.get("OPENDOSM_BASE_URL", "https://api.data.gov.my/opendosm/")
+    OPENDOSM_CONNECT_TIMEOUT = float(os.environ.get("OPENDOSM_CONNECT_TIMEOUT", "5"))
+    OPENDOSM_READ_TIMEOUT = float(os.environ.get("OPENDOSM_READ_TIMEOUT", "15"))
+    OPENDOSM_MAX_RETRIES = int(os.environ.get("OPENDOSM_MAX_RETRIES", "2"))
+    # The published limit is 4 requests per minute, so spacing is at least 15s.
+    OPENDOSM_MIN_REQUEST_INTERVAL = float(os.environ.get("OPENDOSM_MIN_REQUEST_INTERVAL", "15"))
+
 
 class DevelopmentConfig(BaseConfig):
     """Local development. A random secret is generated if none is set.

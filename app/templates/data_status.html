@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Data status{% endblock %}
+
+{% block content %}
+<section class="section" aria-labelledby="status-title">
+  <p class="eyebrow">Data sources</p>
+  <h1 id="status-title">Data status</h1>
+  <p class="lead">
+    Where each figure comes from, when it was last retrieved, and how current it is.
+    Reference periods describe the statistics. Retrieval times describe when Myconomy fetched them.
+  </p>
+</section>
+
+{% for item in snapshots %}
+<section class="card" aria-labelledby="ind-{{ item.code }}">
+  <h2 id="ind-{{ item.code }}">{{ item.name }}</h2>
+  <p class="muted">{{ item.description }}</p>
+
+  <p>
+    <span class="tag status-{{ item.status }}">
+      {% if item.status == 'fresh' %}Current{% elif item.status == 'stale' %}Stale{% else %}Unavailable{% endif %}
+    </span>
+    {{ item.status_message }}
+  </p>
+
+  <dl class="spec-list">
+    <div class="spec-row">
+      <dt>Latest value</dt>
+      <dd>
+        {% if item.latest_value is not none %}{{ "%.1f"|format(item.latest_value) }}{% else %}Not available{% endif %}
+      </dd>
+    </div>
+    <div class="spec-row">
+      <dt>Reference period</dt>
+      <dd>{% if item.latest_period %}{{ item.latest_period.strftime('%Y-%m') }}{% else %}Not available{% endif %}</dd>
+    </div>
+    <div class="spec-row">
+      <dt>Unit</dt>
+      <dd>{{ item.unit }}</dd>
+    </div>
+    <div class="spec-row">
+      <dt>Provider update frequency</dt>
+      <dd>{{ item.frequency | lower }}</dd>
+    </div>
+    <div class="spec-row">
+      <dt>Provider data as of</dt>
+      <dd>{{ item.data_as_of or 'Not available' }}</dd>
+    </div>
+    <div class="spec-row">
+      <dt>Provider last updated</dt>
+      <dd>{% if item.source_last_updated %}{{ item.source_last_updated.strftime('%Y-%m-%d %H:%M') }}{% else %}Not available{% endif %}</dd>
+    </div>
+    <div class="spec-row">
+      <dt>Retrieved by Myconomy (UTC)</dt>
+      <dd>{% if item.retrieved_at %}{{ item.retrieved_at.strftime('%Y-%m-%d %H:%M') }}{% else %}Not yet{% endif %}</dd>
+    </div>
+    <div class="spec-row">
+      <dt>Source</dt>
+      <dd><a href="{{ item.source_url }}">OpenDOSM documentation</a></dd>
+    </div>
+  </dl>
+</section>
+{% else %}
+<section class="card">
+  <p>No indicators are registered.</p>
+</section>
+{% endfor %}
+{% endblock %}

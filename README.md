@@ -42,6 +42,16 @@ flask --app run db upgrade
 Local data is stored in `instance/myconomy.db`. This folder is git-ignored
 because it can contain personal data.
 
+## Refresh OpenDOSM data
+
+```powershell
+flask --app run refresh-data
+```
+
+This fetches every registered indicator. The OpenDOSM API allows 4 requests
+per minute, so the command spaces requests automatically. Run the command
+from one process only. Visit `/data-status` to see what was retrieved.
+
 ## Tests
 
 ```powershell

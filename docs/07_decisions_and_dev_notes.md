@@ -25,17 +25,29 @@ URL without the slash returns a 301 redirect).
 | Headline series | `filter=overall@division` returns 561 monthly rows, 1980-01 to 2026-09. |
 | Filter syntax | `<value>@<column>`. `division eq "02"` returns HTTP 400. |
 | Sorting | `sort=-date` works (newest first). |
-| `offset` | Appears **ignored** in tests (returns the same first rows). Not used. |
+| `offset` | **Not a documented parameter.** The official request-query page lists only `limit`, `sort`, `filter`, and `ifilter`/`contains`/`icontains`. Live calls ignore it. Not used. |
+| Limit | No documented maximum. A filtered call with `limit=100000` returned all 7854 unfiltered rows of `cpi_headline` in one response. |
 | Latest reference period | 2026-09-01 on 2026-11-05 (about two months behind). |
 | Null values | `cpi_core` division `02` returns `index: null` for recent months. |
 | Unknown dataset | HTTP 404 with a clear message. |
 | Working datasets seen | `cpi_headline`, `cpi_core`, `gdp_qtr_real`, `lfs_month`, `lfs_qtr`, `population_state`. `population_district` returned an empty list with `limit=1`. |
 | Dataset IDs that returned 404 | `gdp_qtr`, `gdp_quarterly`, `population`, `labour_force_monthly`. |
-| Metadata | Not yet verified. `/data-catalogue?id=` returns data, not metadata. |
-| Rate limits, update schedule | Not yet verified. |
+| Metadata | `meta=true` adds `meta` with `data_as_of`, `last_updated`, `next_update`, `update_frequency`, `data_source`, `total`. The envelope is `{"meta": {...}, "data": [...]}`. |
+| Update schedules (live `meta`) | `cpi_headline`, `cpi_core`, `lfs_month`: MONTHLY. `gdp_qtr_real`: QUARTERLY. `population_state`: YEARLY (data as of 2023). |
+| Rate limit | **4 requests per minute** for the OpenDOSM API (developer.data.gov.my/rate-limit). Live test: requests 1–4 returned 200; requests 5 and 6 returned **429**. |
+| Error format | `{"status": <int>, "errors": [...]}`. Statuses: 200, 400, 404, 429, 500. |
+| Retry-After header | Not documented and not observed. |
+| API key | Not mentioned in the docs. None used. |
+| Population units | Not stated in the metadata. `population_state` Johor = `4009.7`, which suggests thousands. **Unconfirmed.** |
+| CPI base year | Not stated in the metadata. The unit is shown as "base year not confirmed". **Unconfirmed.** |
 
-Open checks before Milestone 2 coding: confirm the offset behaviour, rate
-limits, update schedule per dataset, CPI base year, and population units.
+## 2a. Milestone 2 open questions (resolved or not)
+
+- Offset pagination: resolved. Not documented, not used. A single request with a large `limit` returns full series.
+- Rate limit: resolved. 4 per minute, so the client spaces requests by 15 seconds and waits 60 seconds after a 429.
+- Update schedule: resolved for the datasets seen above, from `meta`.
+- CPI base year: **open**.
+- Population units: **open** (suggested thousands; needs confirmation before any population display).
 
 ## 3. Milestone 1 build notes
 
@@ -48,6 +60,24 @@ limits, update schedule per dataset, CPI base year, and population units.
   generated (Alembic reported no schema changes).
 - The tests use a separate in-memory database.
 
+## 3a. Milestone 2 build notes
+
+- Provider client (`app/services/opendosm_client.py`): explicit timeouts,
+  retries for timeouts, connection errors, and 5xx (exponential backoff), a
+  60-second wait then one retry for 429, no retry for other 4xx, and
+  per-process request spacing of 15 seconds.
+- Spacing is per process. The scheduled refresh must run as one process, or the limit can be exceeded.
+- Dataset mappings live in code (`app/services/dataset_registry.py`), not in
+  the database. This keeps verified field names under code review. The
+  `indicators` table is synced from this registry on each refresh. This is a
+  small change from the database design, which stored a mapping JSON in the table.
+- Refresh is all-or-nothing: the full response is validated before any row is
+  written. An empty response, or a failed fetch, keeps the previous data and
+  marks the status as stale.
+- Stored times are UTC. The status page labels retrieval time separately from the reference period.
+- Live refresh on 2026-11-05 stored 561 observations for `cpi_headline`.
+- Tests: 58 passing with no network access. One optional live test runs with `RUN_LIVE_TESTS=1`.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it
@@ -55,3 +85,5 @@ limits, update schedule per dataset, CPI base year, and population units.
 - Account deletion and data export behaviour (FR-03, FR-10).
 - Freshness threshold for each dataset (for the widget's stale status).
 - Whether the CPI series has been rebased (affects comparisons across years).
+- CPI base year and population units (see section 2a).
+- Whether the rate limit is shared across all API categories (the docs say each category has the same limit; the live test covered one).

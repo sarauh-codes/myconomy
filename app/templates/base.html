@@ -20,6 +20,7 @@
         <nav aria-label="Main navigation">
           <ul class="nav-list">
             <li><a href="{{ url_for('main.index') }}"{% if request.endpoint == 'main.index' %} aria-current="page"{% endif %}>Home</a></li>
+            <li><a href="{{ url_for('data_status.data_status') }}"{% if request.endpoint == 'data_status.data_status' %} aria-current="page"{% endif %}>Data status</a></li>
             <li><a href="{{ url_for('main.health') }}"{% if request.endpoint == 'main.health' %} aria-current="page"{% endif %}>Service status</a></li>
           </ul>
         </nav>

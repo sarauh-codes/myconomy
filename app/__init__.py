@@ -31,11 +31,16 @@ def create_app(config_name: str | None = None) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
 
+    # Import models so their tables are registered for migrations.
+    from . import models  # noqa: F401
+
+    from .cli import register_commands
     from .errors import register_error_handlers
     from .routes import register_blueprints
 
     register_blueprints(app)
     register_error_handlers(app)
+    register_commands(app)
     _register_security_headers(app)
 
     return app
