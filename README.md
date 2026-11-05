@@ -42,6 +42,14 @@ flask --app run db upgrade
 Local data is stored in `instance/myconomy.db`. This folder is git-ignored
 because it can contain personal data.
 
+## Quick stats widget
+
+The home page shows three quick stats. Each one is also available on its own:
+- http://127.0.0.1:5000/widget/cpi_headline (an HTML fragment for embedding)
+- http://127.0.0.1:5000/api/indicators/cpi_headline/latest (JSON)
+
+Widgets read only the cache, so they never call OpenDOSM.
+
 ## Accounts and the spending tracker
 
 Accounts are optional. Public pages (dashboard, calculator, learning, explorer) work without one.

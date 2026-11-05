@@ -12,6 +12,7 @@ def register_blueprints(app: Flask) -> None:
     from .data_status import data_status_bp
     from .learn import learn_bp
     from .main import main_bp
+    from .widget import widget_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(data_status_bp)
@@ -21,3 +22,4 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(explore_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(expenses_bp)
+    app.register_blueprint(widget_bp)

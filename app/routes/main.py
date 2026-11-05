@@ -1,7 +1,7 @@
 """Public home page and the health check.
 
-Both routes are open to guests. No economic figures are shown here yet:
-statistics arrive with the OpenDOSM integration in Milestone 2.
+Both routes are open to guests. The home page shows the latest stored figures
+from the cache, so it never calls OpenDOSM directly.
 """
 
 import logging
@@ -10,6 +10,8 @@ from flask import Blueprint, jsonify, render_template
 from sqlalchemy import text
 
 from ..extensions import db
+from ..services.dataset_registry import INDICATORS
+from ..services.quick_stats import home_stats
 
 main_bp = Blueprint("main", __name__)
 logger = logging.getLogger(__name__)
@@ -17,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @main_bp.get("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", stats=home_stats(), indicator_count=len(INDICATORS))
 
 
 @main_bp.get("/health")

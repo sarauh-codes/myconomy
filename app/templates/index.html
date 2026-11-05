@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_widgets.html" import quick_stat %}
 
 {% block content %}
 <section class="hero" aria-labelledby="page-title">
@@ -10,7 +11,7 @@
       and explained in plain language.
     </p>
     <div class="actions">
-      <a class="btn btn-primary" href="#why-no-figures">Why no figures yet?</a>
+      <a class="btn btn-primary" href="#why-no-figures">How figures are kept current</a>
       <a class="btn btn-secondary" href="{{ url_for('main.health') }}">Check service status</a>
     </div>
   </div>
@@ -18,11 +19,11 @@
   <div class="frame" aria-label="Project status summary">
     <div class="frame-panel">
       <p class="metric-label muted">Project status</p>
-      <p class="metric-value">01</p>
+      <p class="metric-value">08</p>
       <p class="metric-unit">of 11 milestones complete</p>
       <dl class="spec-list">
-        <div class="spec-row"><dt>Data source</dt><dd>OpenDOSM, not yet connected</dd></div>
-        <div class="spec-row"><dt>Figures shown</dt><dd>None until retrieved</dd></div>
+        <div class="spec-row"><dt>Data source</dt><dd>OpenDOSM, connected</dd></div>
+        <div class="spec-row"><dt>Figures shown</dt><dd>Only from stored data, with a period</dd></div>
         <div class="spec-row"><dt>Sign-in</dt><dd>Optional, personal features only</dd></div>
       </dl>
     </div>
@@ -35,12 +36,20 @@
     <p class="fact-label">planned features, phased over 11 milestones</p>
   </div>
   <div class="fact">
-    <p class="fact-value">0</p>
-    <p class="fact-label">figures shown before OpenDOSM is connected</p>
+    <p class="fact-value">{{ indicator_count }}</p>
+    <p class="fact-label">official indicators, each with its unit and source</p>
   </div>
   <div class="fact">
     <p class="fact-value">Guest</p>
     <p class="fact-label">access by default; accounts only for personal features</p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="stats-title">
+  <h2 id="stats-title">Latest figures</h2>
+  <p class="muted">Each figure shows its reference period, when Myconomy retrieved it, and its status. Figures come from stored OpenDOSM data.</p>
+  <div class="stats-grid">
+    {% for stat in stats %}{{ quick_stat(stat) }}{% endfor %}
   </div>
 </section>
 
@@ -112,13 +121,12 @@
 <section class="section" id="why-no-figures" aria-labelledby="faq-title">
   <h2 id="faq-title">Questions</h2>
   <details class="disclosure">
-    <summary>Why are no economic figures shown yet?</summary>
+    <summary>Why does a figure say Stale or Unavailable?</summary>
     <div class="disclosure-body">
       <p>
-        Figures come from OpenDOSM, which is connected in Milestone 2. Showing numbers
-        before then would mean typing them in by hand, which the project does not allow.
-        Once connected, every figure will carry its reference period, source, and the
-        time it was retrieved.
+        Figures are stored after each successful refresh from OpenDOSM. A figure is Stale when the last refresh
+        failed or the provider's next scheduled update has passed, and Unavailable when nothing has been stored yet.
+        In both cases the page shows the last good value and says why it is not current.
       </p>
     </div>
   </details>

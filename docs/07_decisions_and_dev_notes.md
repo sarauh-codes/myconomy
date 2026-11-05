@@ -210,6 +210,29 @@ Verification:
 - Browser check: not completed. The browser pane stopped rendering, so the account and tracker pages have
   not been checked visually. The layout reuses the existing components, but this needs a look.
 
+## 3g. Milestone 8 build notes (Quick Stats widget)
+
+- The widget is a reusable Jinja macro (`app/templates/_widgets.html`) with the value, indicator name,
+  reference period, retrieval time (UTC), a text status, and links to details and the source.
+- Endpoints: `/widget/<code>` (standalone HTML fragment) and `/api/indicators/<code>/latest` (JSON).
+- Widgets read only the cache (`app/services/quick_stats.py`). They never call OpenDOSM. A test patches
+  the client to fail and checks every widget route still responds.
+- Stale and unavailable states are stated in words ("Stale", "Unavailable") and explained, not shown by colour alone.
+- The home page shows three widgets: CPI, unemployment, and real GDP growth. They are chosen in `home_stats()`.
+- Formatting: rates show a percent sign; levels use thousands separators; index values show one decimal.
+- Tests: 255 passing across the suite; 18 widget-specific tests.
+
+Copy corrections made while building this milestone. Earlier pages said that OpenDOSM was not yet
+connected and that no figures were shown. Both were out of date after Milestones 2 to 6, so I corrected:
+the home page status card, the fact strip (now counts registered indicators), the footer, the FAQ,
+and the route docstring.
+
+Browser check:
+- The home page widgets were checked in the browser: values, reference periods, and statuses are correct,
+  with no horizontal scroll at 375px. The stat grid goes from three columns to one.
+- The sign-in page was checked: all visible inputs have labels; the CSRF token is the only unlabelled input, which is hidden.
+- The Milestone 7 tracker and account pages have still not been checked visually; the browser pane was intermittently blank.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it

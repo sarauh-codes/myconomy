@@ -1,0 +1,29 @@
+{# Quick stat widget. Reused on the home page and as a standalone fragment. #}
+
+{% macro quick_stat(stat, heading_level=3) %}
+<article class="quick-stat quick-stat-{{ stat.status }}" aria-labelledby="qs-{{ stat.code }}">
+  <header class="quick-stat-head">
+    <h{{ heading_level }} id="qs-{{ stat.code }}" class="quick-stat-name">{{ stat.name }}</h{{ heading_level }}>
+    <span class="tag status-{{ stat.status }}">{{ stat.status_text }}</span>
+  </header>
+
+  {% if stat.status == 'unavailable' and stat.value_text == 'Not available' %}
+  <p class="quick-stat-value data">Not available</p>
+  {% else %}
+  <p class="quick-stat-value data">
+    {{ stat.value_text }}{% if stat.unit_text %} <span class="quick-stat-unit">{{ stat.unit_text }}</span>{% endif %}
+  </p>
+  {% endif %}
+
+  <p class="quick-stat-meta">
+    <span>Reference period: <strong>{{ stat.period_text }}</strong></span>
+    <span>Retrieved: {{ stat.retrieved_text }}</span>
+  </p>
+  <p class="quick-stat-message muted">{{ stat.status_message }}</p>
+
+  <p class="quick-stat-links">
+    <a href="{{ stat.details_url }}">Details<span class="visually-hidden"> for {{ stat.name }}</span></a>
+    <a href="{{ stat.source_url }}">Source<span class="visually-hidden"> for {{ stat.name }}</span></a>
+  </p>
+</article>
+{% endmacro %}
