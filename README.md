@@ -42,6 +42,12 @@ flask --app run db upgrade
 Local data is stored in `instance/myconomy.db`. This folder is git-ignored
 because it can contain personal data.
 
+## Explore indicators
+
+Open http://127.0.0.1:5000/explore to see each registered indicator's unit,
+geography, frequency, stored coverage, and source. Each indicator links to its
+dashboard view. Run `flask --app run refresh-data` first to load the data.
+
 ## Learn and understand
 
 Open http://127.0.0.1:5000/learn for short explanations of CPI, inflation, and

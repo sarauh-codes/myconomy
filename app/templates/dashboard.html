@@ -50,16 +50,23 @@
     <p class="stat-value data">{{ latest_value_text }}</p>
     <p class="muted">Reference period {{ latest_period_text }}</p>
   </article>
+  {% if spec.shows_changes %}
   <article class="card stat-card">
     <h2 class="stat-label">Change over 12 months</h2>
     <p class="stat-value data">{{ yoy_text }}</p>
-    <p class="muted">{% if yoy_period_text %}Compared with {{ yoy_period_text }}{% else %}Needs the same month a year earlier{% endif %}</p>
+    <p class="muted">{% if yoy_period_text %}Compared with {{ yoy_period_text }}{% else %}Needs the same {{ period_word }} a year earlier{% endif %}</p>
   </article>
   <article class="card stat-card">
-    <h2 class="stat-label">Change from last month</h2>
-    <p class="stat-value data">{{ mom_text }}</p>
-    <p class="muted">{% if mom_period_text %}Compared with {{ mom_period_text }}{% else %}Needs the previous month{% endif %}</p>
+    <h2 class="stat-label">Change from last {{ period_word }}</h2>
+    <p class="stat-value data">{{ prev_text }}</p>
+    <p class="muted">{% if prev_period_text %}Compared with {{ prev_period_text }}{% else %}Needs the previous {{ period_word }}{% endif %}</p>
   </article>
+  {% else %}
+  <article class="card stat-card">
+    <h2 class="stat-label">About this measure</h2>
+    <p class="muted">This series is already a rate, so changes are not calculated from it. Read the value and its reference period.</p>
+  </article>
+  {% endif %}
 </section>
 
 <section class="card chart-card" aria-labelledby="chart-title">
@@ -101,7 +108,7 @@
   </dl>
   <p class="method">
     12-month change = (latest value − value 12 months earlier) ÷ value 12 months earlier × 100.
-    Monthly change works the same way against the previous month. Changes are only shown when both months are available.
+    The change from the previous {{ period_word }} works the same way. Changes are only shown when both periods are available, and only for index and level series.
     These figures describe the index itself, not an individual's costs.
   </p>
 </section>

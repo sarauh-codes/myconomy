@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Explore indicators{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="explore-title">
+  <p class="eyebrow">Multi-indicator explorer</p>
+  <h1 id="explore-title">Explore official indicators</h1>
+  <p class="lead">
+    Each indicator shows its unit, geography, frequency, and the periods stored here.
+    Read each one on its own: indicators with different units or periods are not compared with each other.
+  </p>
+</section>
+
+<section class="card" aria-labelledby="table-title">
+  <h2 id="table-title">Indicators</h2>
+  <div class="table-scroll">
+    <table class="data-table explore-table">
+      <caption>Registered indicators, with unit, geography, frequency, and stored coverage.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Indicator</th>
+          <th scope="col">Unit</th>
+          <th scope="col">Geography</th>
+          <th scope="col">Frequency</th>
+          <th scope="col">Stored periods</th>
+          <th scope="col">Latest</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <th scope="row"><a href="{{ url_for('dashboard.dashboard', indicator=row.code) }}">{{ row.name }}</a><br><span class="muted">{{ row.description }}</span></th>
+          <td>{{ row.unit }}</td>
+          <td>{{ row.geography }}</td>
+          <td>{{ row.frequency }}</td>
+          <td>{{ row.coverage }}</td>
+          <td class="data">{{ row.latest }}</td>
+          <td><span class="tag status-{{ row.status }}">{{ row.status | capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="method">Sources: <a href="https://developer.data.gov.my/static-api/opendosm">OpenDOSM documentation</a>. Units marked as inferred or unconfirmed are not yet verified against the provider.</p>
+</section>
+{% endblock %}

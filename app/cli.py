@@ -31,9 +31,10 @@ def refresh_data_command(codes: tuple[str, ...]) -> None:
         raise click.BadParameter(f"Unknown indicator(s): {', '.join(unknown)}")
 
     client = client_from_config(current_app.config)
+    fetch_cache: dict = {}  # indicators from the same dataset share one request
     failures = 0
     for code in selected:
-        outcome = refresh_indicator(code, client)
+        outcome = refresh_indicator(code, client, fetch_cache=fetch_cache)
         status = "OK" if outcome.ok else "FAILED"
         click.echo(f"{status:7} {code}: {outcome.message} (observations processed: {outcome.observations})")
         if not outcome.ok:

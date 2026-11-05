@@ -129,6 +129,40 @@ URL without the slash returns a 301 redirect).
 - Tests: 145 passing, one live test skipped by default.
 - Not yet covered: Malay (Bahasa Malaysia) translations, which decision D4 requires in a later milestone.
 
+## 3e. Milestone 6 build notes (Multi-Indicator Explorer)
+
+Verified live on 2026-11-05 (`meta=true`, full responses):
+
+| Dataset | Frequency | Coverage | Shape | Verified facts | Unconfirmed |
+|---|---|---|---|---|---|
+| `cpi_headline` (filter `overall@division`) | Monthly | 1980-01 to 2026-09 | `date`, `index`, `division` | National; no nulls | Base year |
+| `gdp_qtr_real` | Quarterly | 2015-Q1 to 2026-Q2, 46 quarters per series | `date`, `series`, `value` | Three series: `abs` (level), `growth_yoy` and `growth_qoq` (per cent). `growth_yoy` starts 2016-Q1 and `growth_qoq` starts 2015-Q2, as expected for lagged growth. | Unit and price base of `abs`. Magnitude suggests RM million. |
+| `lfs_month` | Monthly | 2010-01 to 2026-08, 200 months, no gaps | `date`, `lf`, `u_rate`, `p_rate`, `ep_ratio`, `lf_employed`, `lf_unemployed`, `lf_outside` | `u_rate` equals `lf_unemployed` ÷ `lf` × 100 (checked: 436.7 ÷ 12,367.9 ≈ 3.5). National. | — |
+| `population_state` | Yearly | 2020 to 2023 only | `date`, `state`, `age`, `sex`, `ethnicity`, `population` | 16 states. The sex split sums to the overall total in every state. | Unit (probably thousands). No national row, so a national total would be summed from the states. The provider's next update (2024-07) has passed, so data is older than expected. |
+
+Decisions in this milestone:
+
+- **Population is deferred.** It needs a national total calculated from states, which the registry
+  does not support yet, and its unit is unconfirmed. It will be added once both are settled.
+- **Only verified indicators are registered:** CPI, real GDP level, real GDP growth, and unemployment.
+- **Rate series show no change figures.** Growth and unemployment are already rates, so a
+  "change" of a rate is not meaningful here. The dashboard says so.
+- **Quarterly periods.** Year-on-year is 12 months back, and change from the previous period is
+  one quarter back. Period labels read `2026-Q2`.
+- **Freshness now honours the provider's schedule.** A snapshot becomes stale when the provider's
+  `next_update` has passed, even if our own window has not expired.
+- **One provider request per dataset per refresh.** GDP level and growth come from one response.
+- **Data shape per dataset.** Where a dataset holds several series, the registry names the series.
+  If the request was server-filtered, any other series is treated as malformed. If unfiltered,
+  other series are skipped.
+- **No cross-indicator comparison.** The explorer shows metadata side by side and says indicators
+  are not compared, because their units and periods can differ.
+
+Verified live: `flask refresh-data` stored 561 CPI, 46 GDP level, 42 GDP growth, and 200
+unemployment observations, with three provider requests in total.
+
+Tests: 167 passing, one live test skipped by default.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it

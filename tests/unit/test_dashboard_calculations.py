@@ -57,8 +57,8 @@ def test_summary_compares_with_same_month_last_year_and_previous_month():
     assert summary.yoy_period == date(2025, 9, 1)
     assert summary.yoy_value == Decimal("100")
     assert summary.yoy_change_pct == Decimal("12.0")
-    assert summary.mom_period == date(2026, 8, 1)
-    assert summary.mom_change_pct == Decimal("0.9")
+    assert summary.prev_period == date(2026, 8, 1)
+    assert summary.prev_change_pct == Decimal("0.9")
 
 
 def test_summary_leaves_changes_empty_when_comparison_month_is_missing():
@@ -68,7 +68,7 @@ def test_summary_leaves_changes_empty_when_comparison_month_is_missing():
     assert summary.latest_period == date(2026, 10, 1)
     assert summary.latest_value == Decimal("137.6")
     assert summary.yoy_change_pct is None  # Oct 2025 is not stored
-    assert summary.mom_change_pct is None  # Sep 2026 is missing, so nothing is estimated
+    assert summary.prev_change_pct is None  # Sep 2026 is missing, so nothing is estimated
 
 
 def test_latest_value_skips_trailing_missing_observations():
@@ -84,13 +84,31 @@ def test_summary_is_empty_without_any_value():
     assert summary.latest_value is None
 
 
-def test_non_monthly_series_gets_no_period_changes():
+def test_quarterly_index_compares_four_quarters_and_one_quarter_back():
     quarterly = replace(SPEC, frequency="QUARTERLY")
-    points = monthly(date(2026, 1, 1), [1.0, 2.0])
+    # Quarter starts: Jan 2025, Apr 2025, Jul 2025, Oct 2025, Jan 2026
+    points = [
+        Point(date(2025, 1, 1), Decimal("100")),
+        Point(date(2025, 4, 1), Decimal("101")),
+        Point(date(2025, 7, 1), Decimal("102")),
+        Point(date(2025, 10, 1), Decimal("103")),
+        Point(date(2026, 1, 1), Decimal("104")),
+    ]
     summary = summarise(points, quarterly)
-    assert summary.latest_value == Decimal("2.0")
+    assert summary.latest_period == date(2026, 1, 1)
+    assert summary.yoy_period == date(2025, 1, 1)
+    assert summary.yoy_change_pct == Decimal("4.0")
+    assert summary.prev_period == date(2025, 10, 1)
+    assert summary.prev_change_pct == Decimal("1.0")
+
+
+def test_rate_series_show_latest_value_but_no_changes():
+    rate = replace(SPEC, value_kind="rate", frequency="MONTHLY")
+    points = monthly(date(2025, 9, 1), [3.0 + i * 0.1 for i in range(13)])
+    summary = summarise(points, rate)
+    assert summary.latest_value is not None
     assert summary.yoy_change_pct is None
-    assert summary.mom_change_pct is None
+    assert summary.prev_change_pct is None
 
 
 def test_select_range_takes_most_recent_months():

@@ -66,15 +66,20 @@ def refresh_indicator(
     client: OpenDOSMClient,
     *,
     now: datetime | None = None,
+    fetch_cache: dict | None = None,
 ) -> RefreshOutcome:
-    """Fetch, validate, and store one indicator. Never raises for provider problems."""
+    """Fetch, validate, and store one indicator. Never raises for provider problems.
+
+    `fetch_cache` lets one refresh run reuse a response when several indicators
+    come from the same dataset, so the provider's rate limit is respected.
+    """
     spec = get_indicator(code)
     now = now or utcnow()
     indicator = _ensure_indicator(spec)
     entry = _ensure_cache_entry(spec)
 
     try:
-        envelope = client.fetch_series(spec.dataset_id, filter_expression=spec.filter_expression)
+        envelope = _fetch(spec, client, fetch_cache)
         observations = parse_observations(envelope, spec)
         meta = parse_meta(envelope)
     except OpenDOSMError as exc:
@@ -104,7 +109,7 @@ def get_snapshot(code: str, *, now: datetime | None = None) -> Snapshot:
     points = []
     if indicator is not None:
         points = (
-            DataPoint.query.filter_by(indicator_id=indicator.id)
+            DataPoint.query.filter_by(indicator_id=indicator.id, division=spec.storage_division)
             .order_by(DataPoint.reference_period.desc())
             .all()
         )
@@ -113,9 +118,15 @@ def get_snapshot(code: str, *, now: datetime | None = None) -> Snapshot:
     if not points:
         status = SNAPSHOT_UNAVAILABLE
         message = entry.last_error if entry and entry.last_error else "No data has been retrieved yet."
-    elif entry and entry.status == STATUS_SUCCESS and entry.expires_at and entry.expires_at > now:
+    elif entry and entry.status == STATUS_SUCCESS and _is_within_window(entry, now):
         status = SNAPSHOT_FRESH
         message = "Retrieved from OpenDOSM within the expected update window."
+    elif entry and entry.status == STATUS_SUCCESS and entry.source_next_update and now >= entry.source_next_update:
+        status = SNAPSHOT_STALE
+        message = (
+            "The provider's next update was due on "
+            f"{entry.source_next_update:%Y-%m-%d}. Refresh to check for newer data."
+        )
     else:
         status = SNAPSHOT_STALE
         if entry and entry.last_error:
@@ -148,6 +159,25 @@ def list_snapshots(*, now: datetime | None = None) -> list[Snapshot]:
 
 
 # Internal helpers
+
+
+def _fetch(spec: IndicatorSpec, client: OpenDOSMClient, fetch_cache: dict | None) -> dict:
+    key = spec.fetch_key
+    if fetch_cache is not None and key in fetch_cache:
+        return fetch_cache[key]
+    envelope = client.fetch_series(spec.dataset_id, filter_expression=spec.filter_expression)
+    if fetch_cache is not None:
+        fetch_cache[key] = envelope
+    return envelope
+
+
+def _is_within_window(entry: CacheEntry, now: datetime) -> bool:
+    """Fresh only before both our own expiry and the provider's next scheduled update."""
+    if not entry.expires_at or entry.expires_at <= now:
+        return False
+    if entry.source_next_update and now >= entry.source_next_update:
+        return False
+    return True
 
 
 def _ensure_indicator(spec: IndicatorSpec) -> Indicator:
@@ -184,7 +214,7 @@ def _store_observations(
 ) -> int:
     existing = {
         point.reference_period: point
-        for point in DataPoint.query.filter_by(indicator_id=indicator.id, division=spec.dimension_value).all()
+        for point in DataPoint.query.filter_by(indicator_id=indicator.id, division=spec.storage_division).all()
     }
     for observation in observations:
         point = existing.get(observation.reference_period)
@@ -192,7 +222,7 @@ def _store_observations(
             point = DataPoint(
                 indicator_id=indicator.id,
                 reference_period=observation.reference_period,
-                division=spec.dimension_value,
+                division=spec.storage_division,
             )
             db.session.add(point)
         point.value = observation.value

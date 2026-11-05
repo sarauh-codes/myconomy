@@ -38,6 +38,10 @@ def create_app(config_name: str | None = None) -> Flask:
     from .errors import register_error_handlers
     from .routes import register_blueprints
 
+    from .services.dataset_registry import format_period
+
+    app.add_template_filter(format_period, "period")
+
     register_blueprints(app)
     register_error_handlers(app)
     register_commands(app)

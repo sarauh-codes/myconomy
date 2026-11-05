@@ -20,11 +20,12 @@ from ..services.dashboard_service import (
     summarise,
 )
 from ..services.data_service import get_snapshot
-from ..services.dataset_registry import INDICATORS
+from ..services.dataset_registry import INDICATORS, format_period
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
 DEFAULT_INDICATOR = next(iter(INDICATORS))
+PERIOD_WORD = {"MONTHLY": "month", "QUARTERLY": "quarter", "YEARLY": "year"}
 
 
 def _format_value(value: Decimal | None) -> str:
@@ -54,13 +55,14 @@ def dashboard():
 
     spec = INDICATORS[code]
     all_points = load_points(spec)
-    points = select_range(all_points, range_key)
+    points = select_range(all_points, range_key, spec.periods_per_year)
     summary = summarise(all_points, spec)
     snapshot = get_snapshot(code)
+    freq = spec.frequency
 
     # Newest first for the data table; the chart uses the oldest-first series.
     table_rows = [
-        {"period": point.period.strftime("%Y-%m"), "value": _format_value(point.value)}
+        {"period": format_period(point.period, freq), "value": _format_value(point.value)}
         for point in reversed(points)
     ]
 
@@ -72,12 +74,13 @@ def dashboard():
         "range_label": RANGE_LABELS[range_key],
         "snapshot": snapshot,
         "summary": summary,
+        "period_word": PERIOD_WORD.get(freq, "period"),
         "latest_value_text": _format_value(summary.latest_value),
-        "latest_period_text": summary.latest_period.strftime("%Y-%m") if summary.latest_period else "Not available",
+        "latest_period_text": format_period(summary.latest_period, freq) if summary.latest_period else "Not available",
         "yoy_text": _format_change(summary.yoy_change_pct),
-        "yoy_period_text": summary.yoy_period.strftime("%Y-%m") if summary.yoy_period else "",
-        "mom_text": _format_change(summary.mom_change_pct),
-        "mom_period_text": summary.mom_period.strftime("%Y-%m") if summary.mom_period else "",
+        "yoy_period_text": format_period(summary.yoy_period, freq) if summary.yoy_period else "",
+        "prev_text": _format_change(summary.prev_change_pct),
+        "prev_period_text": format_period(summary.prev_period, freq) if summary.prev_period else "",
         "table_rows": table_rows,
         "errors": errors,
         "series_url": f"/api/indicators/{code}/series?range={range_key}",
@@ -97,12 +100,13 @@ def series_json(code: str):
 
     spec = INDICATORS[code]
     snapshot = get_snapshot(code)
-    points = select_range(load_points(spec), range_key)
+    points = select_range(load_points(spec), range_key, spec.periods_per_year)
     return jsonify(
         indicator=spec.code,
         name=spec.name,
         unit=spec.unit,
         frequency=spec.frequency,
+        geography=spec.geography,
         source_url=spec.source_url,
         range=range_key,
         status=snapshot.status,

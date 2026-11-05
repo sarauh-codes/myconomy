@@ -33,7 +33,7 @@
     </div>
     <div class="spec-row">
       <dt>Reference period</dt>
-      <dd>{% if item.latest_period %}{{ item.latest_period.strftime('%Y-%m') }}{% else %}Not available{% endif %}</dd>
+      <dd>{% if item.latest_period %}{{ item.latest_period | period(item.frequency) }}{% else %}Not available{% endif %}</dd>
     </div>
     <div class="spec-row">
       <dt>Unit</dt>

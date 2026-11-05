@@ -1,15 +1,17 @@
 """Validate and normalise an OpenDOSM series response.
 
-Rules (all violations raise MalformedResponse, so nothing partial is saved):
-- Every row is an object with the mapped date, value, and dimension fields.
-- Dates are ISO dates on the first of the month for monthly series.
-- Values are numbers (or null, meaning "missing") and above the indicator's minimum.
-- Booleans are rejected even though Python treats them as integers.
-- Each row carries the dimension value the registry expects.
-- No period appears twice.
+Rules (violations raise MalformedResponse, so nothing partial is saved):
+- Every row used by the indicator is an object with the mapped date and value fields.
+- Dates are ISO dates on the first of a month (quarters start in Jan, Apr, Jul, Oct).
+- Values are numbers, or null (meaning "missing"), and respect the indicator's lower bound.
+  Booleans are rejected even though Python treats them as integers.
+- Each period appears only once for the indicator.
 
-An empty `data` list is not an error here. It is returned as an empty list,
-and the caller decides how to handle it.
+Datasets can hold several series. If the indicator was fetched with a server-side
+filter, every row must match it, because a mismatch means the filter was ignored.
+If it was fetched without a filter, rows for other series are skipped.
+
+An empty result is returned as an empty list. The caller decides what that means.
 """
 
 from __future__ import annotations
@@ -49,7 +51,7 @@ def parse_meta(envelope: dict[str, Any]) -> ProviderMeta:
 
 
 def parse_observations(envelope: dict[str, Any], spec: IndicatorSpec) -> list[Observation]:
-    """Return observations sorted oldest first. Raises MalformedResponse on any problem."""
+    """Return observations for this indicator, oldest first. Raises MalformedResponse on any problem."""
     rows = envelope.get("data")
     if not isinstance(rows, list):
         raise MalformedResponse("The statistics service returned an unexpected data field.")
@@ -57,6 +59,11 @@ def parse_observations(envelope: dict[str, Any], spec: IndicatorSpec) -> list[Ob
     seen: set[date] = set()
     observations: list[Observation] = []
     for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise MalformedResponse(f"Row {index} is not an object.")
+        if spec.dimension_field and not _matches_dimension(row, spec, index):
+            continue  # another series in the same dataset; skipped only when fetched unfiltered
+
         observation = _parse_row(row, spec, index)
         if observation.reference_period in seen:
             raise MalformedResponse(f"Duplicate period {observation.reference_period.isoformat()} in response.")
@@ -67,18 +74,24 @@ def parse_observations(envelope: dict[str, Any], spec: IndicatorSpec) -> list[Ob
     return observations
 
 
-def _parse_row(row: Any, spec: IndicatorSpec, index: int) -> Observation:
-    if not isinstance(row, dict):
-        raise MalformedResponse(f"Row {index} is not an object.")
+def _matches_dimension(row: dict[str, Any], spec: IndicatorSpec, index: int) -> bool:
+    if spec.dimension_field not in row:
+        raise MalformedResponse(f"Row {index} is missing the '{spec.dimension_field}' field.")
+    value = row[spec.dimension_field]
+    if spec.filter_expression is not None:
+        # Server-side filtered: every row must match.
+        if value != spec.dimension_value:
+            raise MalformedResponse(
+                f"Row {index} has {spec.dimension_field}={value!r}; expected {spec.dimension_value!r}."
+            )
+        return True
+    return value == spec.dimension_value
 
-    for field in (spec.date_field, spec.value_field, spec.dimension_field):
+
+def _parse_row(row: dict[str, Any], spec: IndicatorSpec, index: int) -> Observation:
+    for field in (spec.date_field, spec.value_field):
         if field not in row:
             raise MalformedResponse(f"Row {index} is missing the '{field}' field.")
-
-    if row[spec.dimension_field] != spec.dimension_value:
-        raise MalformedResponse(
-            f"Row {index} has {spec.dimension_field}={row[spec.dimension_field]!r}; expected {spec.dimension_value!r}."
-        )
 
     period = _parse_period(row[spec.date_field], index)
     value = _parse_value(row[spec.value_field], spec, index)
@@ -105,8 +118,10 @@ def _parse_value(raw: Any, spec: IndicatorSpec, index: int) -> Decimal | None:
     as_float = float(raw)
     if not math.isfinite(as_float):
         raise MalformedResponse(f"Row {index} has a non-finite value.")
-    if as_float <= spec.min_value_exclusive:
-        raise MalformedResponse(f"Row {index} is outside the plausible range for {spec.code}.")
+    if spec.min_value is not None:
+        below = as_float < spec.min_value if spec.min_inclusive else as_float <= spec.min_value
+        if below:
+            raise MalformedResponse(f"Row {index} is outside the plausible range for {spec.code}.")
     # Convert through str to avoid binary floating-point noise in the stored decimal.
     return Decimal(str(raw))
 
