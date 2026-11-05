@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Purchasing power calculator{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="calc-title">
+  <p class="eyebrow">Purchasing power calculator</p>
+  <h1 id="calc-title">What an amount was worth, in another month</h1>
+  <p class="lead">
+    Converts an amount from one month to another using the national headline CPI.
+    This is a CPI-based estimate. It does not measure your own costs.
+  </p>
+</section>
+
+{% if errors %}
+<section class="notice notice-error" role="alert" aria-labelledby="errors-title">
+  <h2 id="errors-title">Please check the form</h2>
+  <ul>
+    {% for field, message in errors.items() %}
+    <li><a href="#{{ field }}">{{ message }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<form class="card calc-form" method="get" action="{{ url_for('calculator.calculator') }}" novalidate>
+  <fieldset>
+    <legend>Compare two months</legend>
+
+    <div class="field">
+      <label for="amount">Amount (RM)</label>
+      <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off"
+             value="{{ raw.amount }}" placeholder="for example 1000"
+             aria-describedby="amount-hint{% if errors.amount %} amount-error{% endif %}"
+             {% if errors.amount %}aria-invalid="true"{% endif %}>
+      <p id="amount-hint" class="hint">Zero or positive, up to two decimal places.</p>
+      {% if errors.amount %}<p id="amount-error" class="field-error">{{ errors.amount }}</p>{% endif %}
+    </div>
+
+    <div class="field">
+      <label for="source">Starting month</label>
+      <input id="source" name="source" type="month" value="{{ raw.source }}"
+             {% if available.from %}min="{{ available.from }}" max="{{ available.to }}"{% endif %}
+             aria-describedby="source-hint{% if errors.source %} source-error{% endif %}"
+             {% if errors.source %}aria-invalid="true"{% endif %}>
+      <p id="source-hint" class="hint">The month the amount is from.{% if available.from %} Stored months: {{ available.from }} to {{ available.to }}.{% endif %}</p>
+      {% if errors.source %}<p id="source-error" class="field-error">{{ errors.source }}</p>{% endif %}
+    </div>
+
+    <div class="field">
+      <label for="target">Target month</label>
+      <input id="target" name="target" type="month" value="{{ raw.target }}"
+             {% if available.from %}min="{{ available.from }}" max="{{ available.to }}"{% endif %}
+             aria-describedby="target-hint{% if errors.target %} target-error{% endif %}"
+             {% if errors.target %}aria-invalid="true"{% endif %}>
+      <p id="target-hint" class="hint">The month to convert the amount into.</p>
+      {% if errors.target %}<p id="target-error" class="field-error">{{ errors.target }}</p>{% endif %}
+    </div>
+  </fieldset>
+
+  <div class="actions">
+    <button type="submit" class="btn btn-primary">Calculate</button>
+  </div>
+</form>
+
+{% if result %}
+<section class="card calc-result" aria-labelledby="result-title" tabindex="-1" id="result">
+  <h2 id="result-title">Result</h2>
+  <p class="result-sentence">
+    <span class="data">RM {{ "{:,.2f}".format(result.inputs.amount) }}</span>
+    in {{ result.inputs.source_period.strftime('%Y-%m') }}
+    is equivalent to
+    <span class="stat-value data">RM {{ "{:,.2f}".format(result.equivalent_amount) }}</span>
+    in {{ result.inputs.target_period.strftime('%Y-%m') }}.
+  </p>
+  <p class="muted">
+    Direction: from the starting month to the target month. The change in CPI terms is
+    {{ "%+.1f"|format(result.change_pct) }}%.
+  </p>
+
+  <dl class="spec-list">
+    <div class="spec-row"><dt>Starting month CPI</dt><dd>{{ "%.1f"|format(result.source_cpi) }} ({{ result.inputs.source_period.strftime('%Y-%m') }})</dd></div>
+    <div class="spec-row"><dt>Target month CPI</dt><dd>{{ "%.1f"|format(result.target_cpi) }} ({{ result.inputs.target_period.strftime('%Y-%m') }})</dd></div>
+    <div class="spec-row"><dt>Ratio (target ÷ starting)</dt><dd>{{ "%.4f"|format(result.ratio) }}</dd></div>
+  </dl>
+
+  <p class="formula">
+    Formula: equivalent amount = input amount × (target CPI ÷ starting CPI)<br>
+    RM {{ "%.2f"|format(result.inputs.amount) }} × ({{ "%.1f"|format(result.target_cpi) }} ÷ {{ "%.1f"|format(result.source_cpi) }}) = RM {{ "%.2f"|format(result.equivalent_amount) }}
+  </p>
+
+  <div class="notice {% if result.snapshot.status == 'fresh' %}notice-ok{% else %}notice-error{% endif %}">
+    <strong>Data:</strong> {{ result.snapshot.status_message }}
+    Reference period {{ result.snapshot.data_as_of or 'not available' }}.
+    Source: <a href="{{ result.snapshot.source_url }}">{{ result.snapshot.provider }} documentation</a>.
+  </div>
+
+  <p class="method">
+    This is an estimate using national CPI. Individual costs depend on what each household buys,
+    and may change differently from CPI. Results are not financial advice.
+  </p>
+</section>
+{% elif not submitted and available.from %}
+<p class="muted">Stored CPI months run from {{ available.from }} to {{ available.to }}.</p>
+{% elif not submitted %}
+<section class="notice">
+  <p>No CPI values are stored yet. Run the data refresh first, then return here.</p>
+</section>
+{% endif %}
+{% endblock %}

@@ -42,6 +42,12 @@ flask --app run db upgrade
 Local data is stored in `instance/myconomy.db`. This folder is git-ignored
 because it can contain personal data.
 
+## Purchasing power calculator
+
+Open http://127.0.0.1:5000/calculator. Enter an amount in RM and two months
+(YYYY-MM). The result uses the national headline CPI, so it is an estimate, not
+a measure of your own costs. Results can be shared as a link.
+
 ## Dashboard
 
 Open http://127.0.0.1:5000/dashboard after running a refresh. The page

@@ -97,6 +97,24 @@ URL without the slash returns a 301 redirect).
   chart loads and redraws on theme change.
 - Tests: 85 passing (58 from Milestone 2, plus calculation, route, and series tests).
 
+## 3c. Milestone 4 build notes (Purchasing power calculator)
+
+- Formula (FR-02): `equivalent_amount = input × (target CPI ÷ starting CPI)`.
+  Calculated in `app/services/calculator_service.py` with `Decimal`, rounded to the cent.
+  Checked against an independent calculation: 100 from 2020-01 (CPI 122.4) to 2026-09 (CPI 137.6) = RM 112.42.
+- Currency: amounts are treated as **Malaysian ringgit (RM)**. This is my assumption;
+  the requirements do not state a currency. Confirm before release.
+- Input rules: zero or positive, up to two decimal places, thousands commas and spaces allowed,
+  maximum RM 1 trillion. Months are `YYYY-MM`.
+- Missing months and missing CPI values are never estimated. The message names the month and
+  shows the stored range.
+- The form uses GET, so results can be shared as a link. Nothing is saved, so no CSRF token is needed here.
+  Invalid input returns HTTP 400 with per-field messages and a summary that links to each field.
+- The result states the direction (starting month to target month), the CPI values used, the ratio,
+  the formula, the data status, and the reference period.
+- Verified in the browser at 1280px and 375px, dark mode: the result renders with the real data, and the phone layout has no horizontal scroll.
+- Tests: 131 passing, one live test skipped by default.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it
