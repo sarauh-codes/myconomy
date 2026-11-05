@@ -1539,3 +1539,35 @@ p {
 .notification-title {
   margin-bottom: 4px;
 }
+
+/* Economic chatbot */
+
+.chat-form {
+  margin-top: 16px;
+}
+
+.chat-form textarea {
+  font: inherit;
+  color: var(--dp-color-ink);
+  background: var(--dp-color-ground);
+  border: var(--dp-border-hairline) solid var(--dp-color-line);
+  border-radius: var(--dp-radius-panel);
+  padding: 10px 12px;
+  width: 100%;
+  resize: vertical;
+}
+
+.chat-answer {
+  margin-top: 24px;
+}
+
+.answer-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.chat-links {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}

@@ -58,6 +58,15 @@ then the evaluation. Running the evaluation again never creates duplicate notifi
 
 Schedule both commands (for example with Windows Task Scheduler) to run daily, refresh first.
 
+## Economic chatbot
+
+Ask questions at http://127.0.0.1:5000/chat. It answers from the stored statistics,
+with the reference period and source, and explains concepts from the learning pages.
+It does not give financial advice, and it does not save questions.
+
+The chatbot does not use an external language model by default, so it needs no API key
+and sends nothing outside the application. Adding a model later is a separate decision (see `app/services/llm.py`).
+
 ## Quick stats widget
 
 The home page shows three quick stats. Each one is also available on its own:

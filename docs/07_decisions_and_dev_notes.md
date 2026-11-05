@@ -258,6 +258,31 @@ Home page corrections made during this milestone (requested by the user): the ro
 feature count, and footer now match the built features. The roadmap shows public statistics and the
 tracker and alerts as done, and the chatbot and release as next.
 
+## 3i. Milestone 10 build notes (Economic chatbot)
+
+Decision: **no external language model by default.** The design left the provider open. Choosing one
+involves cost, privacy, and an exact model version, so the default is a retrieval-only chatbot:
+answers come from stored values and the reviewed learning content. `app/services/llm.py` provides the
+interface for a later provider. Its default sends nothing outside the application.
+
+- Intents: latest value, 12-month change (index and level indicators), concept explanations (CPI,
+  inflation, purchasing power, linked to the learning pages), refusals for personal financial advice,
+  and a scope message for anything else.
+- Numbers come only from the data layer, with the reference period and source. A missing value or
+  comparison month produces an "unavailable" answer, never an estimate.
+- Injection: the question is treated as text to match, not as instructions. Tests check that
+  "ignore previous instructions" cannot change a figure or add a source.
+- Privacy: the chatbot module does not import the expense models (a test checks this), and answers
+  never include personal records (tested with a seeded expense). Questions are not stored, and no chat table exists.
+- Input: up to 300 characters, control characters removed, CSRF protected.
+- Intent matching is keyword-based. It is simple to test and explain, but it will miss paraphrases.
+  Unrecognised questions get the scope message.
+- Live check on the local data: inflation +1.8% (2026-09), unemployment 2.9% (2026-08), and GDP growth
+  6.0% (2026-Q2) match the dashboard.
+- Tests: 320 passing. The chatbot suite has 31 tests.
+- Not done: a browser check of the chat page, and any real LLM provider. The keyword matching has not been
+  tested against real user phrasing.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it
