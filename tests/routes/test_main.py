@@ -15,6 +15,19 @@ def test_home_page_has_language_and_skip_link(client):
     assert 'href="#main"' in html
 
 
+def test_home_page_offers_both_themes_and_toggle_is_hidden_until_js(client):
+    html = client.get("/").get_data(as_text=True)
+    assert 'data-theme-toggle hidden' in html
+    assert 'rel="stylesheet" href="https://fonts.googleapis.com/' in html
+
+
+def test_home_page_shows_no_hardcoded_economic_figures(client):
+    # Figures must come from OpenDOSM (Milestone 2), never typed into templates.
+    html = client.get("/").get_data(as_text=True)
+    assert "137.6" not in html
+    assert "CPI" not in html.split('<section class="facts"')[0]
+
+
 def test_health_check_reports_ok(client):
     response = client.get("/health")
     assert response.status_code == 200

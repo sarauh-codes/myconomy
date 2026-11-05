@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Myconomy{% endblock %} · Myconomy</title>
   <meta name="description" content="Myconomy helps you explore Malaysia's official economic statistics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
@@ -13,11 +16,15 @@
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="{{ url_for('main.index') }}">Myconomy</a>
-      <nav aria-label="Main navigation">
-        <ul class="nav-list">
-          <li><a href="{{ url_for('main.index') }}"{% if request.endpoint == 'main.index' %} aria-current="page"{% endif %}>Home</a></li>
-        </ul>
-      </nav>
+      <div class="header-controls">
+        <nav aria-label="Main navigation">
+          <ul class="nav-list">
+            <li><a href="{{ url_for('main.index') }}"{% if request.endpoint == 'main.index' %} aria-current="page"{% endif %}>Home</a></li>
+            <li><a href="{{ url_for('main.health') }}"{% if request.endpoint == 'main.health' %} aria-current="page"{% endif %}>Service status</a></li>
+          </ul>
+        </nav>
+        <button type="button" class="theme-toggle" data-theme-toggle hidden>Light mode</button>
+      </div>
     </div>
   </header>
 
@@ -27,8 +34,27 @@
 
   <footer class="site-footer">
     <div class="container">
-      <p>Understand Malaysia's economy. Statistics are provided by the Department of Statistics Malaysia (DOSM) through OpenDOSM, once connected.</p>
-      <p class="muted">Myconomy shows no economic figures until they are retrieved from OpenDOSM with a visible reference period.</p>
+      <div class="footer-groups">
+        <div>
+          <h3>Myconomy</h3>
+          <p class="muted">Understand Malaysia's economy, with reference periods and sources shown for every figure.</p>
+        </div>
+        <div>
+          <h3>Data</h3>
+          <ul>
+            <li><a href="https://developer.data.gov.my/static-api/opendosm">OpenDOSM documentation</a></li>
+            <li>Source: Department of Statistics Malaysia</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Project</h3>
+          <ul>
+            <li><a href="{{ url_for('main.health') }}">Service status</a></li>
+            <li>Milestone 1 of 11</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-note">No economic figures are shown until they are retrieved from OpenDOSM with a visible reference period.</p>
     </div>
   </footer>
 

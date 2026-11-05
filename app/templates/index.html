@@ -2,20 +2,145 @@
 
 {% block content %}
 <section class="hero" aria-labelledby="page-title">
-  <h1 id="page-title">Understand Malaysia's economy</h1>
-  <p class="lead">
-    Myconomy will make official Malaysian economic statistics easier to explore,
-    with clear reference periods, sources, and plain-language explanations.
-  </p>
+  <div>
+    <p class="eyebrow">Malaysian economic statistics</p>
+    <h1 id="page-title">Understand Malaysia's economy.</h1>
+    <p class="lead">
+      Official figures from OpenDOSM, shown with their reference period and source,
+      and explained in plain language.
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#why-no-figures">Why no figures yet?</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.health') }}">Check service status</a>
+    </div>
+  </div>
+
+  <div class="frame" aria-label="Project status summary">
+    <div class="frame-panel">
+      <p class="metric-label muted">Project status</p>
+      <p class="metric-value">01</p>
+      <p class="metric-unit">of 11 milestones complete</p>
+      <dl class="spec-list">
+        <div class="spec-row"><dt>Data source</dt><dd>OpenDOSM, not yet connected</dd></div>
+        <div class="spec-row"><dt>Figures shown</dt><dd>None until retrieved</dd></div>
+        <div class="spec-row"><dt>Sign-in</dt><dd>Optional, personal features only</dd></div>
+      </dl>
+    </div>
+  </div>
 </section>
 
-<section class="card status-card" aria-labelledby="status-title">
-  <h2 id="status-title">Foundation ready</h2>
-  <p>
-    The application structure, configuration, and health check are in place.
-    Live data from OpenDOSM is connected in the next milestone. Until then,
-    no figures are shown.
-  </p>
-  <p class="muted">Guests can use all public pages without signing in. Accounts will be optional and only needed for personal features.</p>
+<section class="facts" aria-label="Key facts">
+  <div class="fact">
+    <p class="fact-value">8</p>
+    <p class="fact-label">planned features, phased over 11 milestones</p>
+  </div>
+  <div class="fact">
+    <p class="fact-value">0</p>
+    <p class="fact-label">figures shown before OpenDOSM is connected</p>
+  </div>
+  <div class="fact">
+    <p class="fact-value">Guest</p>
+    <p class="fact-label">access by default; accounts only for personal features</p>
+  </div>
+</section>
+
+<section class="section section-split" aria-labelledby="why-title">
+  <h2 id="why-title">Official statistics, made clear.</h2>
+  <ul class="benefit-list">
+    <li>Every figure shows its reference period, unit, and source.</li>
+    <li>Calculations show the formula and the values used.</li>
+    <li>Stale or missing data is labelled, never silently replaced.</li>
+    <li>Estimates are labelled as CPI-based, not as your personal costs.</li>
+  </ul>
+</section>
+
+<section class="section" aria-labelledby="access-title">
+  <h2 id="access-title">Who can do what</h2>
+  <div class="matrix">
+    <div class="matrix-cell">
+      <span class="tag">Guest</span>
+      <h3>Public access</h3>
+      <ul>
+        <li>Economic dashboard</li>
+        <li>Purchasing power calculator</li>
+        <li>Learn &amp; understand pages</li>
+        <li>Quick stats widget</li>
+      </ul>
+    </div>
+    <div class="matrix-cell">
+      <span class="tag">Registered user</span>
+      <h3>Personal features</h3>
+      <ul>
+        <li>Cost-of-living tracker</li>
+        <li>Inflation alert settings</li>
+        <li>Saved preferences</li>
+      </ul>
+    </div>
+    <div class="matrix-cell">
+      <span class="tag">Maintainer</span>
+      <h3>Operations</h3>
+      <ul>
+        <li>Refresh and error logs</li>
+        <li>Service status check</li>
+        <li>Source metadata review</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="roadmap-title">
+  <h2 id="roadmap-title">Roadmap</h2>
+  <ol class="process">
+    <li class="process-step is-done">
+      <span class="step-marker" aria-hidden="true">01</span>
+      <h3>Project foundation</h3>
+      <p class="muted">Done. App structure, configuration, health check.</p>
+    </li>
+    <li class="process-step is-next">
+      <span class="step-marker" aria-hidden="true">02</span>
+      <h3>OpenDOSM integration</h3>
+      <p class="muted">Next. Verified datasets, cached snapshots, visible sources.</p>
+    </li>
+    <li class="process-step">
+      <span class="step-marker" aria-hidden="true">03</span>
+      <h3>Economic dashboard</h3>
+      <p class="muted">Planned. First public feature with real data.</p>
+    </li>
+  </ol>
+</section>
+
+<section class="section" id="why-no-figures" aria-labelledby="faq-title">
+  <h2 id="faq-title">Questions</h2>
+  <details class="disclosure">
+    <summary>Why are no economic figures shown yet?</summary>
+    <div class="disclosure-body">
+      <p>
+        Figures come from OpenDOSM, which is connected in Milestone 2. Showing numbers
+        before then would mean typing them in by hand, which the project does not allow.
+        Once connected, every figure will carry its reference period, source, and the
+        time it was retrieved.
+      </p>
+    </div>
+  </details>
+  <details class="disclosure">
+    <summary>Do I need an account?</summary>
+    <div class="disclosure-body">
+      <p>
+        No. Public statistics, calculators, and learning pages are open to everyone.
+        An account is only needed to save personal spending records and alert settings.
+      </p>
+    </div>
+  </details>
+</section>
+
+<section class="closing" aria-labelledby="closing-title">
+  <div class="container">
+    <h2 id="closing-title">Start with the facts behind the numbers.</h2>
+    <p class="muted">Myconomy explains what statistics do and do not mean, so you can read them with confidence.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('main.health') }}">Check service status</a>
+      <a class="btn btn-secondary" href="#why-no-figures">Read the questions</a>
+    </div>
+  </div>
 </section>
 {% endblock %}
