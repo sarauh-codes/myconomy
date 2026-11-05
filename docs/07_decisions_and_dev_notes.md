@@ -283,6 +283,34 @@ interface for a later provider. Its default sends nothing outside the applicatio
 - Not done: a browser check of the chat page, and any real LLM provider. The keyword matching has not been
   tested against real user phrasing.
 
+## 3j. Milestone 11 build notes (Hardening and release)
+
+Changes:
+- **Login lockout** stored in the database (`failed_login_count`, `locked_until`). Five failures lock the
+  account for 15 minutes. The lock works across worker processes. A locked account refuses even the correct
+  password, with the same message as any failure, so the form does not reveal which accounts exist.
+  Unknown emails are not counted. Limitation: an attacker can still try many accounts slowly, so IP-based
+  limits at the reverse proxy are recommended.
+- **Content-Security-Policy:** script and style sources limited to the app, cdnjs (Chart.js), and Google Fonts.
+  No `unsafe-inline`. Checked in the browser: the dashboard chart renders under the policy with no console errors.
+- **Permissions-Policy** disables camera, microphone, and geolocation. **HSTS** is sent when cookies are secure (production).
+- **Health check** reports data status per indicator. Stale or unavailable data does not make it fail.
+- **Production entry point** `wsgi.py` with Waitress 3.0.2 (released 2024-11-16). Checked: the server starts with
+  `FLASK_CONFIG=production`, cookies are `Secure`, and HSTS, CSP, and the health check respond.
+- **Mobile check:** at 375px, the home, calculator, explorer, chat, and sign-in pages have no horizontal scroll.
+  Sign-in fields all have labels.
+- **Documentation:** `docs/08_architecture_and_user_guide.md` (architecture, running, scheduled jobs, user guide).
+
+Test runs: 331 passing, 1 live test skipped. One run took 11 minutes; reruns took about 30 seconds, so the slow run was
+environmental, not a test problem.
+
+Not done in this milestone (listed honestly as known limitations):
+- Assistive-technology and keyboard-only testing (checked structurally only).
+- Continuous integration.
+- A real HTTPS deployment (the reverse proxy and certificate depend on where the app is hosted).
+- Backup and restore testing (the testing plan requires it; the procedure is not yet written).
+- Population indicator and Bahasa Malaysia.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it

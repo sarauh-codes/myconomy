@@ -10,6 +10,7 @@ Security notes:
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 from urllib.parse import urlsplit
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
@@ -19,9 +20,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from ..extensions import db
 from ..forms import DeleteAccountForm, LoginForm, RegisterForm, normalise_email
 from ..models import User
+from ..models.indicator import utcnow
 
 auth_bp = Blueprint("auth", __name__)
 logger = logging.getLogger(__name__)
+
+MAX_FAILED_LOGINS = 5
+LOCKOUT_MINUTES = 15
 
 # Checked when the email is unknown, so a missing account takes about as long to reject as a wrong password.
 _DUMMY_HASH = generate_password_hash("not-the-password-of-any-account")
@@ -74,20 +79,40 @@ def login():
     if form.validate_on_submit():
         email = normalise_email(form.email.data)
         user = User.query.filter_by(email=email).first()
+        now = utcnow()
         if user is None:
+            check_password_hash(_DUMMY_HASH, form.password.data)
+            valid = False
+        elif user.locked_until and user.locked_until > now:
+            # Locked: refuse even a correct password, with the same message as any failure,
+            # so the form does not reveal which accounts exist or are locked.
             check_password_hash(_DUMMY_HASH, form.password.data)
             valid = False
         else:
             valid = user.check_password(form.password.data)
 
         if valid and user.is_active:
+            user.failed_login_count = 0
+            user.locked_until = None
+            db.session.commit()
             login_user(user)
             session.permanent = True
             logger.info("Signed in (id=%s)", user.id)
             return redirect(_safe_next(request.args.get("next")) or url_for("expenses.list_expenses"))
 
+        if user is not None and not (user.locked_until and user.locked_until > now):
+            user.failed_login_count = (user.failed_login_count or 0) + 1
+            if user.failed_login_count >= MAX_FAILED_LOGINS:
+                user.locked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
+                user.failed_login_count = 0
+                logger.info("Account locked after repeated failures (id=%s)", user.id)
+            db.session.commit()
+
         logger.info("Failed sign-in attempt")
-        flash("Email or password is not correct.", "error")
+        flash(
+            "Email or password is not correct. After several failed attempts, wait 15 minutes before trying again.",
+            "error",
+        )
         return render_template("auth/login.html", form=form), 400
 
     status = 400 if request.method == "POST" else 200

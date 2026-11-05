@@ -30,8 +30,12 @@ def test_home_page_shows_no_hardcoded_economic_figures(client):
 
 def test_health_check_reports_ok(client):
     response = client.get("/health")
+    body = response.get_json()
     assert response.status_code == 200
-    assert response.get_json() == {"status": "ok", "database": "ok"}
+    assert body["status"] == "ok"
+    assert body["database"] == "ok"
+    # Data status is reported but does not make the app unhealthy.
+    assert set(body["data"]) == {"cpi_headline", "unemployment_rate", "gdp_real_level", "gdp_growth_yoy"}
 
 
 def test_health_check_returns_503_when_database_fails(client, monkeypatch):

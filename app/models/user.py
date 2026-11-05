@@ -16,6 +16,9 @@ class User(UserMixin, db.Model):
     display_name = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
+    # Brute-force protection stored in the database, so it holds across worker processes.
+    failed_login_count = db.Column(db.Integer, nullable=False, default=0)
+    locked_until = db.Column(db.DateTime, nullable=True)
 
     # The ORM deletes these records itself. Relying on the database cascade alone
     # would leave them behind on SQLite, which does not enforce foreign keys by default.

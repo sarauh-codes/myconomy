@@ -11,7 +11,7 @@ from sqlalchemy import text
 
 from ..extensions import db
 from ..services.dataset_registry import INDICATORS
-from ..services.quick_stats import home_stats
+from ..services.quick_stats import build_quick_stat, home_stats
 
 main_bp = Blueprint("main", __name__)
 logger = logging.getLogger(__name__)
@@ -34,4 +34,8 @@ def health():
     except Exception:
         logger.exception("Health check: database query failed")
         return jsonify(status="error", database="unavailable"), 503
-    return jsonify(status="ok", database="ok"), 200
+
+    # Stale or unavailable data is reported, but it does not make the app unhealthy:
+    # the site still works from the last good values.
+    data = {code: build_quick_stat(code).status for code in INDICATORS}
+    return jsonify(status="ok", database="ok", data=data), 200
