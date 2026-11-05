@@ -1500,3 +1500,42 @@ p {
     font-size: 2rem;
   }
 }
+
+/* Inflation alerts */
+
+.badge {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0 6px;
+  border-radius: var(--dp-radius-control);
+  background: var(--dp-color-accent);
+  color: var(--dp-color-on-accent);
+  font-family: var(--dp-typography-data-face);
+  font-size: var(--dp-typography-metadata);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.alert-form {
+  margin-top: 12px;
+}
+
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification {
+  padding: 16px 0;
+  border-bottom: var(--dp-border-hairline) solid var(--dp-color-line);
+}
+
+.notification.is-unread {
+  border-left: 4px solid var(--dp-color-accent);
+  padding-left: 12px;
+}
+
+.notification-title {
+  margin-bottom: 4px;
+}

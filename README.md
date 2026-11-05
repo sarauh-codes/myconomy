@@ -42,6 +42,22 @@ flask --app run db upgrade
 Local data is stored in `instance/myconomy.db`. This folder is git-ignored
 because it can contain personal data.
 
+## Inflation alerts
+
+Signed-in users can set alerts at http://127.0.0.1:5000/alerts:
+- **Threshold:** tell me when the 12-month change is above or below a value (index and level indicators only).
+- **New data:** tell me when a newer period is published.
+
+Alerts are checked from stored data, not live. To check them, run the data refresh and
+then the evaluation. Running the evaluation again never creates duplicate notifications:
+
+```powershell
+.\.venv\Scripts\python.exe -m flask --app run refresh-data
+.\.venv\Scripts\python.exe -m flask --app run evaluate-alerts
+```
+
+Schedule both commands (for example with Windows Task Scheduler) to run daily, refresh first.
+
 ## Quick stats widget
 
 The home page shows three quick stats. Each one is also available on its own:

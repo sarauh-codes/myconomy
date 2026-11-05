@@ -19,7 +19,7 @@
   <div class="frame" aria-label="Project status summary">
     <div class="frame-panel">
       <p class="metric-label muted">Project status</p>
-      <p class="metric-value">08</p>
+      <p class="metric-value">09</p>
       <p class="metric-unit">of 11 milestones complete</p>
       <dl class="spec-list">
         <div class="spec-row"><dt>Data source</dt><dd>OpenDOSM, connected</dd></div>
@@ -32,8 +32,8 @@
 
 <section class="facts" aria-label="Key facts">
   <div class="fact">
-    <p class="fact-value">8</p>
-    <p class="fact-label">planned features, phased over 11 milestones</p>
+    <p class="fact-value">7 of 8</p>
+    <p class="fact-label">planned features are live; the rest are in progress or planned</p>
   </div>
   <div class="fact">
     <p class="fact-value">{{ indicator_count }}</p>
@@ -73,7 +73,8 @@
         <li>Economic dashboard</li>
         <li>Purchasing power calculator</li>
         <li>Learn &amp; understand pages</li>
-        <li>Quick stats widget</li>
+        <li>Multi-indicator explorer</li>
+        <li>Quick stats widget and data status</li>
       </ul>
     </div>
     <div class="matrix-cell">
@@ -81,17 +82,17 @@
       <h3>Personal features</h3>
       <ul>
         <li>Cost-of-living tracker</li>
-        <li>Inflation alert settings</li>
-        <li>Saved preferences</li>
+        <li>CPI comparison for your spending</li>
+        <li>Inflation alerts and notifications</li>
       </ul>
     </div>
     <div class="matrix-cell">
       <span class="tag">Maintainer</span>
       <h3>Operations</h3>
       <ul>
-        <li>Refresh and error logs</li>
+        <li>Data refresh command and status page</li>
         <li>Service status check</li>
-        <li>Source metadata review</li>
+        <li>Source metadata on the explorer</li>
       </ul>
     </div>
   </div>
@@ -102,18 +103,18 @@
   <ol class="process">
     <li class="process-step is-done">
       <span class="step-marker" aria-hidden="true">01</span>
-      <h3>Project foundation</h3>
-      <p class="muted">Done. App structure, configuration, health check.</p>
+      <h3>Data and public statistics</h3>
+      <p class="muted">Done. OpenDOSM integration, dashboard, calculator, explorer, learning pages, and quick stats.</p>
+    </li>
+    <li class="process-step is-done">
+      <span class="step-marker" aria-hidden="true">02</span>
+      <h3>Accounts, spending, and alerts</h3>
+      <p class="muted">Done. Optional sign-in, the cost-of-living tracker with its CPI comparison, and inflation alerts.</p>
     </li>
     <li class="process-step is-next">
-      <span class="step-marker" aria-hidden="true">02</span>
-      <h3>OpenDOSM integration</h3>
-      <p class="muted">Next. Verified datasets, cached snapshots, visible sources.</p>
-    </li>
-    <li class="process-step">
       <span class="step-marker" aria-hidden="true">03</span>
-      <h3>Economic dashboard</h3>
-      <p class="muted">Planned. First public feature with real data.</p>
+      <h3>Chatbot and release</h3>
+      <p class="muted">Next: the economic chatbot, then hardening and deployment.</p>
     </li>
   </ol>
 </section>
@@ -135,7 +136,7 @@
     <div class="disclosure-body">
       <p>
         No. Public statistics, calculators, and learning pages are open to everyone.
-        An account is only needed to save personal spending records and alert settings.
+        An account is only needed to save personal spending records and set inflation alerts.
       </p>
     </div>
   </details>

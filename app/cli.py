@@ -16,6 +16,7 @@ from .services.opendosm_client import client_from_config
 
 def register_commands(app: Flask) -> None:
     app.cli.add_command(refresh_data_command)
+    app.cli.add_command(evaluate_alerts_command)
 
 
 @click.command("refresh-data")
@@ -41,4 +42,22 @@ def refresh_data_command(codes: tuple[str, ...]) -> None:
             failures += 1
 
     if failures:
+        raise SystemExit(1)
+
+
+@click.command("evaluate-alerts")
+@with_appcontext
+def evaluate_alerts_command() -> None:
+    """Create due inflation alerts from the stored data. Safe to run repeatedly.
+
+    Schedule this after `refresh-data` (for example with Windows Task Scheduler
+    or cron). Running it twice never creates duplicate notifications.
+    """
+    from .services.alert_service import evaluate_all
+
+    report = evaluate_all()
+    click.echo(f"Created {report.created} notification(s).")
+    for line in report.skipped:
+        click.echo(f"Skipped: {line}")
+    if report.skipped:
         raise SystemExit(1)

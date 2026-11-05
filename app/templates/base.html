@@ -32,6 +32,7 @@
         {% if current_user.is_authenticated %}
         <div class="account-links">
           <a href="{{ url_for('expenses.list_expenses') }}"{% if request.endpoint and request.endpoint.startswith('expenses.') %} aria-current="page"{% endif %}>My spending</a>
+          <a href="{{ url_for('alerts.index') }}"{% if request.endpoint and request.endpoint.startswith('alerts.') %} aria-current="page"{% endif %}>Alerts{% if unread_alerts %} <span class="badge" aria-label="{{ unread_alerts }} unread">{{ unread_alerts }}</span>{% endif %}</a>
           <a href="{{ url_for('auth.account') }}"{% if request.endpoint == 'auth.account' %} aria-current="page"{% endif %}>Account</a>
           <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -75,7 +76,7 @@
           <h3>Project</h3>
           <ul>
             <li><a href="{{ url_for('main.health') }}">Service status</a></li>
-            <li>Milestone 8 of 11</li>
+            <li>Milestone 9 of 11</li>
           </ul>
         </div>
       </div>

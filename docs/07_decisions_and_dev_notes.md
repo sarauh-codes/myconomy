@@ -233,6 +233,31 @@ Browser check:
 - The sign-in page was checked: all visible inputs have labels; the CSRF token is the only unlabelled input, which is hidden.
 - The Milestone 7 tracker and account pages have still not been checked visually; the browser pane was intermittently blank.
 
+## 3h. Milestone 9 build notes (Inflation alerts)
+
+- Two rule types. **Threshold** compares a 12-month change with a value (decision D2), above or below.
+  It applies only to index and level indicators, because the change of a rate is not what the rule means.
+  **New data** fires when a newer period is stored than the rule last saw.
+- A new-data rule starts with a baseline (the latest stored period). Existing periods do not alert on creation.
+- Idempotence: each notification has a unique `event_key` built from the rule, type, period, and (for thresholds)
+  the change value. Running the evaluation again creates nothing new. A revised value for the same period is a
+  new event, so the user is told about the revision.
+- Safety: evaluation only uses a source whose last refresh succeeded. A failed or empty refresh creates no alert.
+  Inactive rules and inactive accounts are skipped. Each rule commits separately, so one failure does not stop the rest.
+- Notifications show the indicator, the change or value, the reference period, and the source. Each has read state.
+- Limits: 20 rules per user. The threshold must be between -50% and 100%.
+- Scheduling: `flask --app run evaluate-alerts`, run after `refresh-data`. No in-process timer.
+  Use Windows Task Scheduler or cron. Running it repeatedly is safe.
+- Nav shows an unread count for signed-in users only.
+- Tests: 289 passing (34 new alert tests across the integration and route suites).
+- Live check: `evaluate-alerts` runs against the local database and reports 0 rules created, as expected.
+- Still open: email or messaging delivery (in-app only for now), and login rate limiting (Milestone 7).
+- The browser check of the alerts page has not been done yet.
+
+Home page corrections made during this milestone (requested by the user): the roadmap, access list,
+feature count, and footer now match the built features. The roadmap shows public statistics and the
+tracker and alerts as done, and the chatbot and release as next.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it

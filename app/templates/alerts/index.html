@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Inflation alerts{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="alerts-title">
+  <p class="eyebrow">Inflation alerts</p>
+  <h1 id="alerts-title">Alerts and notifications</h1>
+  <p class="lead">
+    Set a rule and Myconomy will tell you here when a published figure meets it.
+    Alerts come from stored OpenDOSM data, and each one shows its reference period and source.
+    Each event triggers only once.
+  </p>
+</section>
+
+{% if errors %}
+<section class="notice notice-error" role="alert" aria-labelledby="form-errors-title">
+  <h2 id="form-errors-title">Please check the alert</h2>
+  <ul>
+    {% for field, message in errors.items() %}
+    <li><a href="#{{ field }}">{{ message }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="card" aria-labelledby="new-rule-title">
+  <h2 id="new-rule-title">New alert</h2>
+  <form method="post" action="{{ url_for('alerts.create') }}" novalidate class="alert-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid">
+      <div class="field">
+        <label for="indicator">Indicator</label>
+        <select id="indicator" name="indicator"{% if errors.indicator %} aria-invalid="true" aria-describedby="indicator-error"{% endif %}>
+          {% for item in indicators %}
+          <option value="{{ item.code }}"{% if values.indicator == item.code %} selected{% endif %}>{{ item.name }}</option>
+          {% endfor %}
+        </select>
+        {% if errors.indicator %}<p id="indicator-error" class="field-error">{{ errors.indicator }}</p>{% endif %}
+      </div>
+      <div class="field">
+        <label for="alert_type">Alert type</label>
+        <select id="alert_type" name="alert_type"{% if errors.alert_type %} aria-invalid="true" aria-describedby="alert_type-error"{% endif %}>
+          <option value="threshold"{% if values.alert_type == 'threshold' %} selected{% endif %}>Threshold: 12-month change crosses a value</option>
+          <option value="new_data"{% if values.alert_type == 'new_data' %} selected{% endif %}>New data: a newer period is published</option>
+        </select>
+        {% if errors.alert_type %}<p id="alert_type-error" class="field-error">{{ errors.alert_type }}</p>{% endif %}
+      </div>
+      <div class="field">
+        <label for="operator">Threshold direction</label>
+        <select id="operator" name="operator"{% if errors.operator %} aria-invalid="true" aria-describedby="operator-error"{% endif %}>
+          <option value="above"{% if values.operator == 'above' %} selected{% endif %}>Above the threshold</option>
+          <option value="below"{% if values.operator == 'below' %} selected{% endif %}>Below the threshold</option>
+        </select>
+        {% if errors.operator %}<p id="operator-error" class="field-error">{{ errors.operator }}</p>{% endif %}
+      </div>
+      <div class="field">
+        <label for="threshold">Threshold (% change over 12 months)</label>
+        <input id="threshold" name="threshold" type="text" inputmode="decimal" value="{{ values.threshold or '' }}" placeholder="for example 3"
+               aria-describedby="threshold-hint{% if errors.threshold %} threshold-error{% endif %}"
+               {% if errors.threshold %}aria-invalid="true"{% endif %}>
+        <p id="threshold-hint" class="hint">Used by threshold alerts only. Leave empty for new-data alerts.</p>
+        {% if errors.threshold %}<p id="threshold-error" class="field-error">{{ errors.threshold }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="actions"><button type="submit" class="btn btn-primary">Save alert</button></div>
+  </form>
+</section>
+
+<section class="card" aria-labelledby="rules-title">
+  <h2 id="rules-title">Your alerts</h2>
+  {% if rules %}
+  <div class="table-scroll">
+    <table class="data-table">
+      <caption>Alert rules and whether they are active</caption>
+      <thead><tr><th scope="col">Indicator</th><th scope="col">Rule</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for rule in rules %}
+        <tr>
+          <td>{{ rule.indicator.name }}</td>
+          <td>{{ describe(rule) }}</td>
+          <td><span class="tag">{{ 'Active' if rule.is_active else 'Paused' }}</span></td>
+          <td class="row-actions">
+            <form method="post" action="{{ url_for('alerts.toggle', rule_id=rule.id) }}" class="inline-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-button">{{ 'Pause' if rule.is_active else 'Resume' }}<span class="visually-hidden"> alert for {{ rule.indicator.name }}</span></button>
+            </form>
+            <form method="post" action="{{ url_for('alerts.delete', rule_id=rule.id) }}" class="inline-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-button danger-text">Delete<span class="visually-hidden"> alert for {{ rule.indicator.name }}</span></button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">You have no alerts yet.</p>
+  {% endif %}
+</section>
+
+<section class="card" id="notifications" aria-labelledby="notes-title">
+  <h2 id="notes-title">Notifications</h2>
+  {% if notes %}
+  <ol class="notification-list">
+    {% for note in notes %}
+    <li class="notification{% if not note.is_read %} is-unread{% endif %}">
+      <p class="notification-title">
+        {% if not note.is_read %}<span class="tag">New</span>{% endif %}
+        <strong>{{ note.title }}</strong>
+      </p>
+      <p>{{ note.message }}</p>
+      <p class="muted small">
+        Created {{ note.created_at.strftime('%Y-%m-%d %H:%M') }} UTC.
+        Reference period {{ note.reference_period.strftime('%Y-%m') if note.reference_period else 'not stated' }}.
+        {% if note.source_url %}<a href="{{ note.source_url }}">Source</a>{% endif %}
+      </p>
+      {% if not note.is_read %}
+      <form method="post" action="{{ url_for('alerts.read', notification_id=note.id) }}" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="link-button">Mark as read<span class="visually-hidden"> {{ note.title }}</span></button>
+      </form>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="muted">No notifications yet. They appear here when an alert triggers.</p>
+  {% endif %}
+</section>
+{% endblock %}
