@@ -1,0 +1,60 @@
+"""Application factory for Myconomy.
+
+`create_app()` builds a configured Flask instance. Tests and the command line
+call it with different configurations, so no global app object is needed.
+"""
+
+import logging
+import os
+
+from flask import Flask
+
+from .config import config_by_name
+from .extensions import db, migrate
+
+
+def create_app(config_name: str | None = None) -> Flask:
+    """Create and configure the Flask application."""
+    name = config_name or os.environ.get("FLASK_CONFIG", "development")
+    if name not in config_by_name:
+        raise ValueError(f"Unknown configuration '{name}'. Choose from: {', '.join(config_by_name)}.")
+
+    app = Flask(__name__)
+    app.config.from_object(config_by_name[name])
+
+    if not app.config["SECRET_KEY"]:
+        # Fail at startup rather than run with weak or missing session security.
+        raise RuntimeError("SECRET_KEY must be set in the environment for this configuration.")
+
+    _configure_logging(app)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    from .errors import register_error_handlers
+    from .routes import register_blueprints
+
+    register_blueprints(app)
+    register_error_handlers(app)
+    _register_security_headers(app)
+
+    return app
+
+
+def _configure_logging(app: Flask) -> None:
+    """Log to the console at the configured level. Never log secrets or personal data."""
+    logging.basicConfig(
+        level=app.config["LOG_LEVEL"],
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+
+
+def _register_security_headers(app: Flask) -> None:
+    """Send baseline headers that limit common browser-side attacks."""
+
+    @app.after_request
+    def add_security_headers(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        return response

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Myconomy{% endblock %} · Myconomy</title>
+  <meta name="description" content="Myconomy helps you explore Malaysia's official economic statistics.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="{{ url_for('main.index') }}">Myconomy</a>
+      <nav aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><a href="{{ url_for('main.index') }}"{% if request.endpoint == 'main.index' %} aria-current="page"{% endif %}>Home</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Understand Malaysia's economy. Statistics are provided by the Department of Statistics Malaysia (DOSM) through OpenDOSM, once connected.</p>
+      <p class="muted">Myconomy shows no economic figures until they are retrieved from OpenDOSM with a visible reference period.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</body>
+</html>
