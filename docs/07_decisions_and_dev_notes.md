@@ -115,6 +115,20 @@ URL without the slash returns a 301 redirect).
 - Verified in the browser at 1280px and 375px, dark mode: the result renders with the real data, and the phone layout has no horizontal scroll.
 - Tests: 131 passing, one live test skipped by default.
 
+## 3d. Milestone 5 build notes (Learn & understand)
+
+- Pages: `/learn` (index), `/learn/cpi`, `/learn/inflation`, `/learn/purchasing-power`.
+- Each topic shows three labelled kinds of content:
+  - **Explanation** (plain language, in `app/services/learning_content.py`).
+  - **Illustrative** example with invented numbers, labelled "Invented numbers for explanation only".
+  - **Official** example, computed from stored OpenDOSM data at request time, showing its reference period and data status. If data is missing, it says so.
+- The purchasing power formula is one constant (`FORMULA_TEXT` in `calculator_service.py`), used by the calculator page and the explanation. Test LEARN-03 checks both.
+- Inflation uses the same 12-month calculation as the dashboard.
+- Every topic links to the OpenDOSM documentation. Content should be reviewed when calculation logic or source definitions change.
+- Verified against live data: `/learn/inflation` shows +1.8% to 2026-09, matching the dashboard; `/learn/purchasing-power` shows RM 112.42, matching the calculator.
+- Tests: 145 passing, one live test skipped by default.
+- Not yet covered: Malay (Bahasa Malaysia) translations, which decision D4 requires in a later milestone.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it

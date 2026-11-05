@@ -85,7 +85,7 @@
   </dl>
 
   <p class="formula">
-    Formula: equivalent amount = input amount × (target CPI ÷ starting CPI)<br>
+    Formula: {{ formula_text }}<br>
     RM {{ "%.2f"|format(result.inputs.amount) }} × ({{ "%.1f"|format(result.target_cpi) }} ÷ {{ "%.1f"|format(result.source_cpi) }}) = RM {{ "%.2f"|format(result.equivalent_amount) }}
   </p>
 

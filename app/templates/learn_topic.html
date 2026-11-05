@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.title }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('learn.learn_index') }}">Learn and understand</a>
+  <span aria-hidden="true">/</span>
+  <span>{{ topic.title }}</span>
+</nav>
+
+<section class="section dashboard-intro" aria-labelledby="topic-title">
+  <h1 id="topic-title">{{ topic.title }}</h1>
+  <p class="lead">{{ topic.intro }}</p>
+</section>
+
+{% for section in topic.sections %}
+<section class="section learn-section" aria-labelledby="sec-{{ loop.index }}">
+  <h2 id="sec-{{ loop.index }}">{{ section.heading }}</h2>
+  {% for paragraph in section.paragraphs %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+</section>
+{% endfor %}
+
+{% if topic.formula %}
+<section class="section" aria-labelledby="formula-title">
+  <h2 id="formula-title">Formula</h2>
+  <p class="formula">{{ topic.formula }}</p>
+</section>
+{% endif %}
+
+<section class="section" aria-labelledby="examples-title">
+  <h2 id="examples-title">Examples</h2>
+
+  <article class="card example example-illustrative">
+    <p class="tag">Illustrative</p>
+    <h3>{{ topic.illustrative_title }}</h3>
+    <p>{{ topic.illustrative_text }}</p>
+    <p class="muted">Invented numbers for explanation only.</p>
+  </article>
+
+  <article class="card example example-official">
+    <p class="tag">Official</p>
+    <h3>Using stored OpenDOSM data</h3>
+    {% if official.available %}
+    <p>{{ official.text }}</p>
+    {% if official.note %}<p class="muted">{{ official.note }}</p>{% endif %}
+    {% else %}
+    <p class="muted">Not available right now. {{ official.text }}</p>
+    {% endif %}
+    <p><a href="{{ url_for('dashboard.dashboard') }}">See the dashboard</a></p>
+  </article>
+</section>
+
+<section class="section" aria-labelledby="sources-title">
+  <h2 id="sources-title">Sources</h2>
+  <ul class="source-list">
+    {% for label, url in topic.sources %}
+    <li><a href="{{ url }}">{{ label }}</a></li>
+    {% endfor %}
+  </ul>
+  <p class="muted">Statistics are provided by the Department of Statistics Malaysia through OpenDOSM.</p>
+</section>
+
+<nav class="section" aria-labelledby="more-title">
+  <h2 id="more-title">More topics</h2>
+  <ul class="source-list">
+    {% for other in topics if other.slug != topic.slug %}
+    <li><a href="{{ url_for('learn.learn_topic', slug=other.slug) }}">{{ other.title }}</a></li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endblock %}

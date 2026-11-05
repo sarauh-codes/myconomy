@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Learn and understand{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="learn-title">
+  <p class="eyebrow">Learn and understand</p>
+  <h1 id="learn-title">Economic ideas in plain language</h1>
+  <p class="lead">
+    Short explanations of the measures used on this site. Each page separates general
+    explanation, invented examples, and official figures.
+  </p>
+</section>
+
+<section class="learn-grid" aria-label="Topics">
+  {% for topic in topics %}
+  <article class="card learn-card">
+    <h2><a href="{{ url_for('learn.learn_topic', slug=topic.slug) }}">{{ topic.title }}</a></h2>
+    <p class="muted">{{ topic.summary }}</p>
+    <p><a href="{{ url_for('learn.learn_topic', slug=topic.slug) }}">Read the explanation</a></p>
+  </article>
+  {% endfor %}
+</section>
+
+<section class="notice" aria-label="How examples are labelled">
+  <p>
+    <span class="tag">Illustrative</span> uses invented numbers to explain an idea. It is not an official figure.
+    <span class="tag">Official</span> is calculated from stored OpenDOSM data, with its reference period shown.
+  </p>
+</section>
+{% endblock %}

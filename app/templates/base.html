@@ -21,6 +21,7 @@
           <ul class="nav-list">
             <li><a href="{{ url_for('main.index') }}"{% if request.endpoint == 'main.index' %} aria-current="page"{% endif %}>Home</a></li>
             <li><a href="{{ url_for('dashboard.dashboard') }}"{% if request.endpoint == 'dashboard.dashboard' %} aria-current="page"{% endif %}>Dashboard</a></li>
+            <li><a href="{{ url_for('learn.learn_index') }}"{% if request.endpoint in ['learn.learn_index', 'learn.learn_topic'] %} aria-current="page"{% endif %}>Learn</a></li>
             <li><a href="{{ url_for('calculator.calculator') }}"{% if request.endpoint == 'calculator.calculator' %} aria-current="page"{% endif %}>Calculator</a></li>
             <li><a href="{{ url_for('data_status.data_status') }}"{% if request.endpoint == 'data_status.data_status' %} aria-current="page"{% endif %}>Data status</a></li>
             <li><a href="{{ url_for('main.health') }}"{% if request.endpoint == 'main.health' %} aria-current="page"{% endif %}>Service status</a></li>

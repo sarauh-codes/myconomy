@@ -7,9 +7,11 @@ def register_blueprints(app: Flask) -> None:
     from .calculator import calculator_bp
     from .dashboard import dashboard_bp
     from .data_status import data_status_bp
+    from .learn import learn_bp
     from .main import main_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(data_status_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(calculator_bp)
+    app.register_blueprint(learn_bp)

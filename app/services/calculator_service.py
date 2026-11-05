@@ -23,6 +23,9 @@ from .data_service import Snapshot, get_snapshot
 from .dataset_registry import get_indicator
 
 CPI_CODE = "cpi_headline"
+# Shared by the calculator page and the learning pages, so the explanation
+# can never drift from the implemented calculation.
+FORMULA_TEXT = "equivalent amount = input amount × (target CPI ÷ starting CPI)"
 CENT = Decimal("0.01")
 MAX_AMOUNT = Decimal("1000000000000")  # RM 1 trillion; rejects absurd inputs
 AMOUNT_PATTERN = re.compile(r"^\d+(\.\d{1,2})?$")

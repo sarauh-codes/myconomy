@@ -6,7 +6,7 @@ Invalid input returns HTTP 400 with messages next to each field.
 
 from flask import Blueprint, render_template, request
 
-from ..services.calculator_service import calculate
+from ..services.calculator_service import FORMULA_TEXT, calculate
 from ..services.dashboard_service import load_points
 from ..services.dataset_registry import get_indicator
 
@@ -34,6 +34,7 @@ def calculator():
     }
 
     context = {
+        "formula_text": FORMULA_TEXT,
         "raw": raw,
         "result": result,
         "errors": errors,
