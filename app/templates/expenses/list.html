@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "_macros.html" import text_field, select_field, textarea_field %}
+
+{% block title %}My spending{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="spend-title">
+  <p class="eyebrow">Cost-of-living tracker</p>
+  <h1 id="spend-title">My spending</h1>
+  <p class="lead">Record what you spend each month, by category. Only you can see these records.</p>
+</section>
+
+<form class="card month-picker" method="get" action="{{ url_for('expenses.list_expenses') }}">
+  <div class="field">
+    <label for="month">Month</label>
+    <input id="month" name="month" type="month" value="{{ month_value }}" max="{{ current_month_value }}"
+           {% if month_error %}aria-invalid="true" aria-describedby="month-error"{% endif %}>
+    {% if month_error %}<p id="month-error" class="field-error">{{ month_error }}</p>{% endif %}
+  </div>
+  <div class="field field-submit"><button type="submit" class="btn btn-secondary">Show month</button></div>
+  <p class="muted"><a href="{{ url_for('expenses.compare') }}">Compare two months with CPI</a></p>
+</form>
+
+<section class="cards" aria-label="Month summary">
+  <article class="card stat-card">
+    <h2 class="stat-label">Total for {{ month_value }}</h2>
+    <p class="stat-value data">RM {{ "{:,.2f}".format(summary.total) }}</p>
+    <p class="muted">{{ summary.count }} record{{ '' if summary.count == 1 else 's' }}</p>
+  </article>
+  <article class="card stat-card">
+    <h2 class="stat-label">By category</h2>
+    {% if summary.by_category %}
+    <ul class="category-list">
+      {% for category, total in summary.by_category %}
+      <li><span>{{ category }}</span> <span class="data">RM {{ "{:,.2f}".format(total) }}</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No records for this month yet.</p>
+    {% endif %}
+  </article>
+</section>
+
+<section class="card" aria-labelledby="records-title">
+  <h2 id="records-title">Records</h2>
+  {% if rows %}
+  <div class="table-scroll">
+    <table class="data-table">
+      <caption>Spending records for {{ month_value }}</caption>
+      <thead><tr><th scope="col">Category</th><th scope="col">Note</th><th scope="col">Amount</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.category }}</td>
+          <td>{{ row.note or '' }}</td>
+          <td class="data">RM {{ "{:,.2f}".format(row.amount) }}</td>
+          <td class="row-actions">
+            <a href="{{ url_for('expenses.edit_expense', expense_id=row.id) }}">Edit<span class="visually-hidden"> {{ row.category }} record</span></a>
+            <form method="post" action="{{ url_for('expenses.delete_expense', expense_id=row.id) }}" class="inline-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-button danger-text">Delete<span class="visually-hidden"> {{ row.category }} record</span></button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">No records for this month. Add one below.</p>
+  {% endif %}
+</section>
+
+<form class="card" method="post" action="{{ url_for('expenses.create_expense') }}" novalidate aria-labelledby="add-title">
+  <h2 id="add-title">Add a record</h2>
+  {{ form.csrf_token }}
+  <div class="form-grid">
+    {{ text_field(form.amount, inputmode="decimal", placeholder="for example 12.50", maxlength="20") }}
+    {{ select_field(form.category, categories) }}
+    {{ text_field(form.month, input_type="month", hint="The month this spending belongs to.") }}
+  </div>
+  {{ textarea_field(form.note, maxlength=200) }}
+  <div class="actions"><button type="submit" class="btn btn-primary">Save record</button></div>
+</form>
+{% endblock %}

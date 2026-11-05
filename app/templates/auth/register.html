@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import text_field, password_field %}
+
+{% block title %}Create account{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="register-title">
+  <p class="eyebrow">Account</p>
+  <h1 id="register-title">Create an account</h1>
+  <p class="lead">An account lets you record monthly spending and compare it with national CPI. You can use the rest of Myconomy without one.</p>
+</section>
+
+<form class="card auth-form" method="post" action="{{ url_for('auth.register') }}" novalidate>
+  {{ form.csrf_token }}
+  {{ text_field(form.email, input_type="email", autocomplete="email") }}
+  {{ text_field(form.display_name, autocomplete="nickname") }}
+  {{ password_field(form.password, autocomplete="new-password", hint="At least 12 characters. A passphrase of several words works well.") }}
+  {{ password_field(form.confirm, autocomplete="new-password") }}
+  <p class="muted small">Your password is stored only as a salted hash. Spending records are private to your account.</p>
+  <div class="actions">
+    <button type="submit" class="btn btn-primary">Create account</button>
+    <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">Already have an account? Sign in</a>
+  </div>
+</form>
+{% endblock %}

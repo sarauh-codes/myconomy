@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import password_field %}
+
+{% block title %}Account{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="account-title">
+  <p class="eyebrow">Account</p>
+  <h1 id="account-title">Your account</h1>
+</section>
+
+<section class="card">
+  <dl class="spec-list">
+    <div class="spec-row"><dt>Email</dt><dd>{{ user.email }}</dd></div>
+    <div class="spec-row"><dt>Display name</dt><dd>{{ user.display_name or 'Not set' }}</dd></div>
+    <div class="spec-row"><dt>Member since</dt><dd>{{ user.created_at.strftime('%Y-%m-%d') }}</dd></div>
+  </dl>
+</section>
+
+<section class="card danger-zone" aria-labelledby="delete-title">
+  <h2 id="delete-title">Delete account</h2>
+  <p>
+    Deleting your account permanently removes your sign-in details and every spending record you have saved.
+    This cannot be undone. Anonymous statistics pages are not affected.
+  </p>
+  <form method="post" action="{{ url_for('auth.delete_account') }}" novalidate>
+    {{ delete_form.csrf_token }}
+    {{ password_field(delete_form.password, autocomplete="current-password") }}
+    <button type="submit" class="btn btn-danger">Delete my account and records</button>
+  </form>
+</section>
+{% endblock %}

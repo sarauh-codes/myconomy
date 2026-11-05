@@ -3,6 +3,8 @@ which Flask-Migrate needs to generate migrations."""
 
 from .cache_entry import CacheEntry
 from .data_point import DataPoint
+from .expense import Expense
 from .indicator import Indicator
+from .user import User
 
-__all__ = ["CacheEntry", "DataPoint", "Indicator"]
+__all__ = ["CacheEntry", "DataPoint", "Expense", "Indicator", "User"]

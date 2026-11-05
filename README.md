@@ -42,6 +42,18 @@ flask --app run db upgrade
 Local data is stored in `instance/myconomy.db`. This folder is git-ignored
 because it can contain personal data.
 
+## Accounts and the spending tracker
+
+Accounts are optional. Public pages (dashboard, calculator, learning, explorer) work without one.
+
+- Create an account at http://127.0.0.1:5000/register. Passwords must be at least 12 characters.
+- Records are at http://127.0.0.1:5000/expenses. Only you can see them.
+- The comparison page at `/expenses/compare` shows your spending change next to the CPI change.
+  It is indicative only, and is withheld when either month lacks data.
+- Delete your account (and every record) at `/account`. This cannot be undone.
+
+Remember to run `flask --app run db upgrade` after pulling, so the users and expenses tables exist.
+
 ## Explore indicators
 
 Open http://127.0.0.1:5000/explore to see each registered indicator's unit,

@@ -163,6 +163,53 @@ unemployment observations, with three provider requests in total.
 
 Tests: 167 passing, one live test skipped by default.
 
+## 3f. Milestone 7 build notes (Accounts and the cost-of-living tracker)
+
+Dependencies (checked against PyPI release dates on 2026-11-05): Flask-Login 0.6.3 (2023),
+Flask-WTF 1.3.0 (2026-04-23), WTForms 3.3.2. All are pinned in `requirements.txt`.
+
+Security design:
+- Passwords hashed with Werkzeug's `generate_password_hash` (salted). Plain text is never stored or logged.
+- Minimum password length 12, maximum 128. No composition rules, which follows current NIST guidance.
+- Failed sign-in returns one message whether the email or password was wrong. A dummy hash check
+  runs for unknown emails, so response time is similar either way.
+- Registration of an existing email returns a generic message that does not say the email is registered.
+  This is a partial mitigation: a determined person can still tell by trying known addresses.
+- CSRF protection is global (Flask-WTF `CSRFProtect`). All state-changing routes are POST, and there is a test for each.
+- The `next` redirect accepts only local paths. External targets and `//` prefixes are ignored (tested).
+- Sign-in sessions expire after 8 hours. There is no "remember me" option.
+- Every expense query includes the owner's id. A record that belongs to someone else returns 404, the
+  same as a missing record (tested for edit, update, and delete).
+- Account deletion requires the current password and removes all of the user's expense records
+  immediately. The ORM does the cascade, because SQLite does not enforce foreign keys by default
+  (a bug found by a test during this milestone).
+
+Decisions I made (please confirm):
+- **Expense categories:** Food and drink, Transport, Housing, Utilities, Health, Education, Clothing,
+  Entertainment, Other. The requirements do not list categories.
+- **Months:** records can be entered from 1990 up to the current month. Future months are rejected.
+- **Amount limit:** RM 10 million per record. Amounts have up to two decimal places.
+- **Deletion is immediate.** No grace period and no export. Data export is still an open question (section 4).
+
+CPI comparison (FR-03):
+- Shows the change in the user's total spending and the change in headline CPI between two months.
+- Withheld, with the reason, when either month has no records or no stored CPI value. Never estimated.
+- Labelled "indicative only" on the page. The method explains the formula.
+
+Not done in this milestone:
+- **Login rate limiting.** The design says to consider it. It is not implemented, and an in-process
+  limit would not hold across several worker processes.
+- **Personal data export.** Open question D-export.
+- **Bahasa Malaysia.** Still outstanding under decision D4.
+
+Verification:
+- Tests: 237 passing (about 25 seconds, mostly password hashing). One live test skipped by default.
+- HTTP check on the local dev server: sign-up, adding an expense, rejecting a negative amount, the comparison
+  withholding a month without records, anonymous redirect to sign-in, and account deletion removing the
+  user and records. The test account was deleted afterwards.
+- Browser check: not completed. The browser pane stopped rendering, so the account and tracker pages have
+  not been checked visually. The layout reuses the existing components, but this needs a look.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it

@@ -1,0 +1,47 @@
+{# Form field helpers. Each field has a label, optional hint, and linked error text. #}
+
+{% macro text_field(f, input_type="text", hint="", autocomplete="", inputmode="", placeholder="", maxlength="") %}
+<div class="field">
+  <label for="{{ f.id }}">{{ f.label.text }}</label>
+  {% if hint %}<p id="{{ f.id }}-hint" class="hint">{{ hint }}</p>{% endif %}
+  <input id="{{ f.id }}" name="{{ f.name }}" type="{{ input_type }}" value="{{ f.data or '' }}"
+         {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+         {% if inputmode %}inputmode="{{ inputmode }}"{% endif %}
+         {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+         {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+         {% if f.errors %}aria-invalid="true" aria-describedby="{{ f.id }}-error"{% elif hint %}aria-describedby="{{ f.id }}-hint"{% endif %}>
+  {% for e in f.errors %}<p id="{{ f.id }}-error" class="field-error">{{ e }}</p>{% endfor %}
+</div>
+{% endmacro %}
+
+{# Passwords are never written back into the page. #}
+{% macro password_field(f, autocomplete="current-password", hint="") %}
+<div class="field">
+  <label for="{{ f.id }}">{{ f.label.text }}</label>
+  {% if hint %}<p id="{{ f.id }}-hint" class="hint">{{ hint }}</p>{% endif %}
+  <input id="{{ f.id }}" name="{{ f.name }}" type="password" autocomplete="{{ autocomplete }}"
+         {% if f.errors %}aria-invalid="true" aria-describedby="{{ f.id }}-error"{% elif hint %}aria-describedby="{{ f.id }}-hint"{% endif %}>
+  {% for e in f.errors %}<p id="{{ f.id }}-error" class="field-error">{{ e }}</p>{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro select_field(f, choices) %}
+<div class="field">
+  <label for="{{ f.id }}">{{ f.label.text }}</label>
+  <select id="{{ f.id }}" name="{{ f.name }}"{% if f.errors %} aria-invalid="true" aria-describedby="{{ f.id }}-error"{% endif %}>
+    {% for value in choices %}
+    <option value="{{ value }}"{% if value == f.data %} selected{% endif %}>{{ value }}</option>
+    {% endfor %}
+  </select>
+  {% for e in f.errors %}<p id="{{ f.id }}-error" class="field-error">{{ e }}</p>{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro textarea_field(f, maxlength=200) %}
+<div class="field">
+  <label for="{{ f.id }}">{{ f.label.text }}</label>
+  <textarea id="{{ f.id }}" name="{{ f.name }}" rows="2" maxlength="{{ maxlength }}"
+            {% if f.errors %}aria-invalid="true" aria-describedby="{{ f.id }}-error"{% endif %}>{{ f.data or '' }}</textarea>
+  {% for e in f.errors %}<p id="{{ f.id }}-error" class="field-error">{{ e }}</p>{% endfor %}
+</div>
+{% endmacro %}

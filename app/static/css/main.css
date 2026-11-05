@@ -1217,3 +1217,181 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+/* Accounts and the spending tracker */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.flash {
+  border: var(--dp-border-hairline) solid var(--dp-color-line);
+  border-left: 4px solid var(--dp-color-accent);
+  border-radius: var(--dp-radius-panel);
+  background: var(--dp-color-panel);
+  padding: 12px 16px;
+  margin: 16px 0 0;
+  font-size: var(--dp-typography-supporting);
+}
+
+.flash-success {
+  border-left-color: var(--dp-color-value);
+}
+
+.flash-error {
+  border-left-color: var(--dp-color-accent-text);
+}
+
+.account-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: var(--dp-typography-supporting);
+}
+
+.account-links a {
+  color: var(--dp-color-ink-muted);
+  text-decoration: none;
+}
+
+.account-links a[aria-current="page"] {
+  color: var(--dp-color-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.inline-form {
+  display: inline;
+  margin: 0;
+}
+
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--dp-color-accent-text);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.danger-text {
+  color: var(--dp-color-accent-text);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--dp-color-accent-text);
+  border-color: var(--dp-color-accent-text);
+}
+
+.btn-danger:hover {
+  background: var(--dp-color-accent-text);
+  color: var(--dp-color-panel);
+}
+
+.danger-zone {
+  border-color: var(--dp-color-accent-text);
+}
+
+.auth-form {
+  display: grid;
+  gap: var(--dp-spacing-compact-gap);
+  max-width: 520px;
+  margin-top: 16px;
+}
+
+.auth-form .actions {
+  margin-top: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--dp-spacing-cluster-gap);
+}
+
+.small {
+  font-size: var(--dp-typography-metadata);
+}
+
+.month-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--dp-spacing-compact-gap) var(--dp-spacing-cluster-gap);
+  margin-top: 16px;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  font-size: var(--dp-typography-supporting);
+}
+
+.category-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  border-bottom: var(--dp-border-hairline) solid var(--dp-color-line);
+}
+
+.row-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.row-actions .inline-form + a,
+.row-actions a + .inline-form {
+  margin-left: 12px;
+}
+
+.field textarea {
+  font: inherit;
+  color: var(--dp-color-ink);
+  background: var(--dp-color-ground);
+  border: var(--dp-border-hairline) solid var(--dp-color-line);
+  border-radius: var(--dp-radius-panel);
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.field input[type="month"] {
+  font: inherit;
+  color: var(--dp-color-ink);
+  background: var(--dp-color-ground);
+  border: var(--dp-border-hairline) solid var(--dp-color-line);
+  border-radius: var(--dp-radius-panel);
+  padding: 10px 12px;
+  min-height: 44px;
+}
+
+.field input[type="email"],
+.field input[type="text"],
+.field input[type="password"] {
+  font: inherit;
+  color: var(--dp-color-ink);
+  background: var(--dp-color-ground);
+  border: var(--dp-border-hairline) solid var(--dp-color-line);
+  border-radius: var(--dp-radius-panel);
+  padding: 10px 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

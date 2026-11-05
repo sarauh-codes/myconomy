@@ -10,7 +10,7 @@ import os
 from flask import Flask
 
 from .config import config_by_name
-from .extensions import db, migrate
+from .extensions import csrf, db, login_manager, migrate
 
 
 def create_app(config_name: str | None = None) -> Flask:
@@ -30,6 +30,8 @@ def create_app(config_name: str | None = None) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
+    csrf.init_app(app)
+    _configure_login(app)
 
     # Import models so their tables are registered for migrations.
     from . import models  # noqa: F401
@@ -48,6 +50,24 @@ def create_app(config_name: str | None = None) -> Flask:
     _register_security_headers(app)
 
     return app
+
+
+def _configure_login(app: Flask) -> None:
+    """Sign-in is optional for most of the site. Only personal pages require it."""
+    from .models import User
+
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
+    login_manager.login_message = "Please sign in to see that page."
+    login_manager.login_message_category = "notice"
+
+    @login_manager.user_loader
+    def load_user(user_id: str):
+        try:
+            user = db.session.get(User, int(user_id))
+        except (TypeError, ValueError):
+            return None
+        return user if user is not None and user.is_active else None
 
 
 def _configure_logging(app: Flask) -> None:

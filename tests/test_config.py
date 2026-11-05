@@ -11,7 +11,10 @@ def test_unknown_configuration_name_is_rejected():
 
 
 def test_production_requires_secret_key(monkeypatch):
-    monkeypatch.delenv("SECRET_KEY", raising=False)
+    # The production config reads SECRET_KEY when the module loads, so the test sets the value directly.
+    from app.config import ProductionConfig
+
+    monkeypatch.setattr(ProductionConfig, "SECRET_KEY", None)
     with pytest.raises(RuntimeError, match="SECRET_KEY"):
         create_app("production")
 

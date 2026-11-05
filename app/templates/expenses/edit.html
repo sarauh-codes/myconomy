@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import text_field, select_field, textarea_field %}
+
+{% block title %}Edit spending record{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="edit-title">
+  <p class="eyebrow">My spending</p>
+  <h1 id="edit-title">Edit spending record</h1>
+</section>
+
+<form class="card" method="post" action="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}" novalidate>
+  {{ form.csrf_token }}
+  <div class="form-grid">
+    {{ text_field(form.amount, inputmode="decimal", maxlength="20") }}
+    {{ select_field(form.category, categories) }}
+    {{ text_field(form.month, input_type="month") }}
+  </div>
+  {{ textarea_field(form.note, maxlength=200) }}
+  <div class="actions">
+    <button type="submit" class="btn btn-primary">Save changes</button>
+    <a class="btn btn-secondary" href="{{ url_for('expenses.list_expenses', month=expense.expense_month.strftime('%Y-%m')) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

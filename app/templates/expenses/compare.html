@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Compare spending with CPI{% endblock %}
+
+{% block content %}
+<section class="section dashboard-intro" aria-labelledby="compare-title">
+  <p class="eyebrow">My spending</p>
+  <h1 id="compare-title">Compare spending with CPI</h1>
+  <p class="lead">
+    See how your total spending changed between two months, next to how national CPI changed over the same months.
+    This comparison is indicative only. Your spending depends on what you buy, which may not match the national basket.
+  </p>
+</section>
+
+<form class="card month-picker" method="get" action="{{ url_for('expenses.compare') }}" novalidate>
+  <div class="field">
+    <label for="from">Starting month</label>
+    <input id="from" name="from" type="month" value="{{ raw_from }}"
+           {% if errors.from %}aria-invalid="true" aria-describedby="from-error"{% endif %}>
+    {% if errors.from %}<p id="from-error" class="field-error">{{ errors.from }}</p>{% endif %}
+  </div>
+  <div class="field">
+    <label for="to">Later month</label>
+    <input id="to" name="to" type="month" value="{{ raw_to }}"
+           {% if errors.to %}aria-invalid="true" aria-describedby="to-error"{% endif %}>
+    {% if errors.to %}<p id="to-error" class="field-error">{{ errors.to }}</p>{% endif %}
+  </div>
+  <div class="field field-submit"><button type="submit" class="btn btn-primary">Compare</button></div>
+</form>
+
+{% if comparison %}
+<section class="card" aria-labelledby="result-title">
+  <h2 id="result-title">Result</h2>
+  {% if comparison.withheld_reason %}
+  <div class="notice notice-error" role="status">
+    <strong>Comparison not available.</strong> {{ comparison.withheld_reason }}
+  </div>
+  {% else %}
+  <dl class="spec-list">
+    <div class="spec-row"><dt>Your spending, {{ comparison.from_summary.month.strftime('%Y-%m') }}</dt><dd class="data">RM {{ "{:,.2f}".format(comparison.from_summary.total) }}</dd></div>
+    <div class="spec-row"><dt>Your spending, {{ comparison.to_summary.month.strftime('%Y-%m') }}</dt><dd class="data">RM {{ "{:,.2f}".format(comparison.to_summary.total) }}</dd></div>
+    <div class="spec-row"><dt>Change in your spending</dt><dd class="data">{% if comparison.spending_change_pct is not none %}{{ "%+.1f"|format(comparison.spending_change_pct) }}%{% else %}Not available{% endif %}</dd></div>
+    <div class="spec-row"><dt>Change in national CPI</dt><dd class="data">{{ "%+.1f"|format(comparison.cpi_change_pct) }}%</dd></div>
+  </dl>
+  {% for note in comparison.notes %}<p class="muted">{{ note }}</p>{% endfor %}
+  <p class="method">
+    CPI change = (later CPI − starting CPI) ÷ starting CPI × 100. Spending change uses the same formula on your monthly totals.
+    The two changes measure different things, so a gap between them is not a finding about your budget.
+  </p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

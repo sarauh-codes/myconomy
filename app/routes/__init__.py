@@ -4,6 +4,8 @@ from flask import Flask
 
 
 def register_blueprints(app: Flask) -> None:
+    from .auth import auth_bp
+    from .expenses import expenses_bp
     from .calculator import calculator_bp
     from .dashboard import dashboard_bp
     from .explore import explore_bp
@@ -17,3 +19,5 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(calculator_bp)
     app.register_blueprint(learn_bp)
     app.register_blueprint(explore_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(expenses_bp)

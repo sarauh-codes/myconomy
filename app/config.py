@@ -20,6 +20,11 @@ class BaseConfig:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = "Lax"
+    # Signed-in sessions expire after 8 hours (set on login).
+    PERMANENT_SESSION_LIFETIME = 60 * 60 * 8
+    WTF_CSRF_ENABLED = True
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 
     # OpenDOSM provider settings. Seconds unless stated otherwise.
@@ -48,6 +53,8 @@ class TestingConfig(BaseConfig):
     TESTING = True
     SECRET_KEY = "test-only-secret-key"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    # Most functional tests post forms directly. CSRF has its own tests that turn it back on.
+    WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(BaseConfig):

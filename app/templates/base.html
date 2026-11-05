@@ -29,11 +29,31 @@
           </ul>
         </nav>
         <button type="button" class="theme-toggle" data-theme-toggle hidden>Light mode</button>
+        {% if current_user.is_authenticated %}
+        <div class="account-links">
+          <a href="{{ url_for('expenses.list_expenses') }}"{% if request.endpoint and request.endpoint.startswith('expenses.') %} aria-current="page"{% endif %}>My spending</a>
+          <a href="{{ url_for('auth.account') }}"{% if request.endpoint == 'auth.account' %} aria-current="page"{% endif %}>Account</a>
+          <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="link-button">Sign out</button>
+          </form>
+        </div>
+        {% else %}
+        <div class="account-links">
+          <a href="{{ url_for('auth.login') }}"{% if request.endpoint == 'auth.login' %} aria-current="page"{% endif %}>Sign in</a>
+          <a href="{{ url_for('auth.register') }}"{% if request.endpoint == 'auth.register' %} aria-current="page"{% endif %}>Create account</a>
+        </div>
+        {% endif %}
       </div>
     </div>
   </header>
 
   <main id="main" class="container" tabindex="-1">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</div>
+    {% endfor %}
+    {% endwith %}
     {% block content %}{% endblock %}
   </main>
 
