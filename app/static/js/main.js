@@ -5,6 +5,24 @@
   var STORAGE_KEY = "myconomy-theme";
   var root = document.documentElement;
 
+  // Busy state: a submitted form says it is working and cannot be submitted twice.
+  // The server still checks everything, so this only improves feedback.
+  document.addEventListener("submit", function (event) {
+    var form = event.target;
+    if (!(form instanceof HTMLFormElement) || form.getAttribute("aria-busy") === "true") {
+      return;
+    }
+    if (form.checkValidity && !form.checkValidity()) {
+      return; // let the browser show its own validation message
+    }
+    form.setAttribute("aria-busy", "true");
+    form.querySelectorAll("button[type='submit']").forEach(function (button) {
+      button.disabled = true;
+      button.dataset.label = button.textContent;
+      button.textContent = "Working…";
+    });
+  });
+
   // Move focus to the main region after the skip link is used,
   // so keyboard users continue from the right place.
   var skip = document.querySelector('a.skip-link[href="#main"]');

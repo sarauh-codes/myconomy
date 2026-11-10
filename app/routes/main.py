@@ -11,6 +11,7 @@ from sqlalchemy import text
 
 from ..extensions import db
 from ..services.dataset_registry import INDICATORS
+from ..services.home_preview import home_preview
 from ..services.quick_stats import build_quick_stat, home_stats
 
 main_bp = Blueprint("main", __name__)
@@ -19,7 +20,12 @@ logger = logging.getLogger(__name__)
 
 @main_bp.get("/")
 def index():
-    return render_template("index.html", stats=home_stats(), indicator_count=len(INDICATORS))
+    return render_template(
+        "index.html",
+        stats=home_stats(),
+        indicator_count=len(INDICATORS),
+        preview=home_preview(),
+    )
 
 
 @main_bp.get("/health")

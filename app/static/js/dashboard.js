@@ -24,6 +24,8 @@
   function setState(message) {
     stateEl.textContent = message || "";
     stateEl.hidden = !message;
+    // The moving bar only shows while the series is loading, never on an error message.
+    stateEl.classList.toggle("is-loading", message === "Loading chart…");
   }
 
   function cssVar(name, fallback) {

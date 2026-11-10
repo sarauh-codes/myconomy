@@ -4,36 +4,36 @@
 {% block content %}
 <section class="hero" aria-labelledby="page-title">
   <div>
-    <p class="eyebrow">Malaysian economic statistics</p>
-    <h1 id="page-title">Understand Malaysia's economy.</h1>
+    <h1 id="page-title">Official inflation, jobs and growth for Malaysia, each with its period and source.</h1>
     <p class="lead">
-      Official figures from OpenDOSM, shown with their reference period and source,
-      and explained in plain language.
+      Figures are stored from OpenDOSM. Each one shows whether it is current, and when it was last retrieved.
     </p>
     <div class="actions">
-      <a class="btn btn-primary" href="#why-no-figures">How figures are kept current</a>
-      <a class="btn btn-secondary" href="{{ url_for('main.health') }}">Check service status</a>
+      <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard.dashboard') }}">Open the dashboard</a>
+      <a class="text-link" href="#how-current">How figures are kept current</a>
     </div>
   </div>
 
-  <div class="frame" aria-label="Project status summary">
+  <figure class="frame">
     <div class="frame-panel">
-      <p class="metric-label muted">Project status</p>
-      <p class="metric-value">10</p>
-      <p class="metric-unit">of 11 milestones complete</p>
-      <dl class="spec-list">
-        <div class="spec-row"><dt>Data source</dt><dd>OpenDOSM, connected</dd></div>
-        <div class="spec-row"><dt>Figures shown</dt><dd>Only from stored data, with a period</dd></div>
-        <div class="spec-row"><dt>Sign-in</dt><dd>Optional, personal features only</dd></div>
-      </dl>
+      <p class="metric-label" id="preview-label">{{ preview.name }}, last 24 stored months</p>
+      {% if preview.available %}
+      <p class="metric-value">{{ preview.latest_text }}</p>
+      <p class="metric-unit">{{ preview.change_text }}. Reference period {{ preview.period_text }}. <span class="tag status-fresh">{{ preview.status_text }}</span></p>
+      {{ preview.chart }}
+      <figcaption class="hint">Source: OpenDOSM. Retrieved {{ preview.retrieved_text }}.</figcaption>
+      {% else %}
+      <p class="metric-value">No data yet</p>
+      <p class="metric-unit">{{ preview.message }}</p>
+      {% endif %}
     </div>
-  </div>
+  </figure>
 </section>
 
 <section class="facts" aria-label="Key facts">
   <div class="fact">
     <p class="fact-value">8 of 8</p>
-    <p class="fact-label">planned features are live, each answered from stored data</p>
+    <p class="fact-label">planned features are live</p>
   </div>
   <div class="fact">
     <p class="fact-value">{{ indicator_count }}</p>
@@ -41,25 +41,25 @@
   </div>
   <div class="fact">
     <p class="fact-value">Guest</p>
-    <p class="fact-label">access by default; accounts only for personal features</p>
+    <p class="fact-label">access by default; an account is only needed for personal records</p>
   </div>
 </section>
 
 <section class="section" aria-labelledby="stats-title">
   <h2 id="stats-title">Latest figures</h2>
-  <p class="muted">Each figure shows its reference period, when Myconomy retrieved it, and its status. Figures come from stored OpenDOSM data.</p>
+  <p class="muted">Each figure shows its reference period, when it was retrieved, and whether it is current.</p>
   <div class="stats-grid">
     {% for stat in stats %}{{ quick_stat(stat) }}{% endfor %}
   </div>
 </section>
 
 <section class="section section-split" aria-labelledby="why-title">
-  <h2 id="why-title">Official statistics, made clear.</h2>
+  <h2 id="why-title">What every figure includes</h2>
   <ul class="benefit-list">
-    <li>Every figure shows its reference period, unit, and source.</li>
-    <li>Calculations show the formula and the values used.</li>
-    <li>Stale or missing data is labelled, never silently replaced.</li>
-    <li>Estimates are labelled as CPI-based, not as your personal costs.</li>
+    <li>The reference period, unit, and source.</li>
+    <li>The formula and the values used, for every calculation.</li>
+    <li>A Stale or Unavailable label, with the last good value, when data is not current.</li>
+    <li>CPI-based estimates labelled as estimates, not as personal costs.</li>
   </ul>
 </section>
 
@@ -67,20 +67,16 @@
   <h2 id="access-title">Who can do what</h2>
   <div class="matrix">
     <div class="matrix-cell">
-      <span class="tag">Guest</span>
-      <h3>Public access</h3>
+      <h3>Guests</h3>
       <ul>
         <li>Economic dashboard</li>
         <li>Purchasing power calculator</li>
-        <li>Learn &amp; understand pages</li>
-        <li>Multi-indicator explorer</li>
-        <li>Quick stats widget and data status</li>
-        <li>Economic chatbot, answering from stored data</li>
+        <li>Explorer, learning pages, and chatbot</li>
+        <li>Quick stats and data status</li>
       </ul>
     </div>
     <div class="matrix-cell">
-      <span class="tag">Registered user</span>
-      <h3>Personal features</h3>
+      <h3>Registered users</h3>
       <ul>
         <li>Cost-of-living tracker</li>
         <li>CPI comparison for your spending</li>
@@ -88,8 +84,7 @@
       </ul>
     </div>
     <div class="matrix-cell">
-      <span class="tag">Maintainer</span>
-      <h3>Operations</h3>
+      <h3>Maintainers</h3>
       <ul>
         <li>Data refresh command and status page</li>
         <li>Service status check</li>
@@ -103,24 +98,24 @@
   <h2 id="roadmap-title">Roadmap</h2>
   <ol class="process">
     <li class="process-step is-done">
-      <span class="step-marker" aria-hidden="true">01</span>
+      <span class="step-marker" aria-hidden="true">1</span>
       <h3>Data and public statistics</h3>
       <p class="muted">Done. OpenDOSM integration, dashboard, calculator, explorer, learning pages, and quick stats.</p>
     </li>
     <li class="process-step is-done">
-      <span class="step-marker" aria-hidden="true">02</span>
+      <span class="step-marker" aria-hidden="true">2</span>
       <h3>Accounts, spending, and alerts</h3>
-      <p class="muted">Done. Optional sign-in, the cost-of-living tracker with its CPI comparison, and inflation alerts.</p>
+      <p class="muted">Done. Optional sign-in, the cost-of-living tracker, and inflation alerts.</p>
     </li>
     <li class="process-step is-next">
-      <span class="step-marker" aria-hidden="true">03</span>
+      <span class="step-marker" aria-hidden="true">3</span>
       <h3>Chatbot and release</h3>
-      <p class="muted">Done: the economic chatbot. Next: hardening, testing on mobile, and deployment.</p>
+      <p class="muted">Done: the chatbot. Next: hardening, mobile testing, and deployment.</p>
     </li>
   </ol>
 </section>
 
-<section class="section" id="why-no-figures" aria-labelledby="faq-title">
+<section class="section" id="how-current" aria-labelledby="faq-title">
   <h2 id="faq-title">Questions</h2>
   <details class="disclosure">
     <summary>Why does a figure say Stale or Unavailable?</summary>
@@ -145,11 +140,9 @@
 
 <section class="closing" aria-labelledby="closing-title">
   <div class="container">
-    <h2 id="closing-title">Start with the facts behind the numbers.</h2>
-    <p class="muted">Myconomy explains what statistics do and do not mean, so you can read them with confidence.</p>
+    <h2 id="closing-title">Start with the latest official figures.</h2>
     <div class="actions">
-      <a class="btn btn-primary" href="{{ url_for('main.health') }}">Check service status</a>
-      <a class="btn btn-secondary" href="#why-no-figures">Read the questions</a>
+      <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard.dashboard') }}">Open the dashboard</a>
     </div>
   </div>
 </section>

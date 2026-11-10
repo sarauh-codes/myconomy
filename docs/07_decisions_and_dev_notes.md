@@ -311,6 +311,34 @@ Not done in this milestone (listed honestly as known limitations):
 - Backup and restore testing (the testing plan requires it; the procedure is not yet written).
 - Population indicator and Bahasa Malaysia.
 
+## 3k. Interface redesign (design review of 20 points)
+
+Applied across the site. The rules are in `docs/design-system.md`. Summary:
+
+- Filler removed: eyebrow labels on every page, the decorative badges on the home page, the offset frame,
+  glows, and gradients. The footer heading that repeated the brand name is gone.
+- Typography: monospace only for large figures. Labels, tags, and table text use the sans family. Tables and
+  figures use tabular numerals. No italics (emphasis is weight and colour).
+- Headline is now specific: "Official inflation, jobs and growth for Malaysia, each with its period and source."
+  It wraps with balanced lines and a small optical margin.
+- The home page shows the product: a preview of the latest 24 stored CPI values, built as an inline SVG from
+  the database (`app/services/home_preview.py`). It is not an illustration and contains no typed-in figures.
+- One primary action in the hero ("Open the dashboard"), and one in the closing band.
+- Status is a dot plus words, never colour alone. The nav's active item has an orange underline.
+- Nested radius rule: cards 20 px, padding 16 px, nested boxes 4 px. On phones, padding 12 px, nested 8 px.
+- Contrast measured: body and muted text 10.9:1 or higher on panels, links 7.9:1 (light) and 8.4:1 (dark),
+  key figures 7.8:1 and 12.0:1. The earlier minimum was 4.5:1.
+- Loading states: submitted forms show "Working…" and cannot be submitted twice. The chart shows a moving bar
+  only while loading, and a static message on error.
+- Feedback motion: flash messages fade in, buttons press slightly, and theme changes ease. Reduced motion removes all of it.
+- Known gap: there are no editorial photographs or icon set. The style guide's image rules were not applied
+  because the project has no image assets, and icons are numbers and +/- marks by design.
+
+Test fix: the tests seeded data at a fixed time while the real clock moved on, so freshness flipped to "stale".
+Tests now freeze the freshness clock (`tests/conftest.py`). This is a test-only change.
+
+Tests: 331 passing, 1 skipped.
+
 ## 4. Open questions still to answer
 
 - Chatbot LLM provider and whether personal data may ever be sent to it
